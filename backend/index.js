@@ -5,6 +5,8 @@ const dotenv = require('dotenv');
 const app = express();
 const userRoutes = require('./routes/userRoutes');
 const articleRoutes = require('./routes/articleRoutes');
+const connectDB = require('./config/db');
+
 
 dotenv.config(); // <-- Make sure this line is here!
 app.use(cors());
@@ -26,18 +28,15 @@ app.get('/', (req, res) => {
 })
 
 const startServer = async () => {
-    app.listen(port, () => {
-        console.log(`server app listening on port ${port}`)
-    })
-
     try {
-        await mongoose.connect(process.env.MONGO_URI);
-
-          
-        console.log('MongoDB connected');
-    } catch (err) {
-        console.error('MongoDB connection error:', err);
+        await connectDB();
+        app.listen(port, () => {
+            console.log(`Server running on port ${port}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
     }
-}   
+};
 
 startServer();

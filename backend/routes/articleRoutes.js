@@ -15,11 +15,12 @@ router.get('/', getArticles);
 router.get('/:id', getArticleById);
 
 // Protected routes with file upload
+// router.post('/', upload.single('media'), createArticle);
+// router.put('/:id', upload.single('media'), updateArticle);
+// router.delete('/:id', deleteArticle);
 router.post('/', protect, upload.single('media'), createArticle);
 router.put('/:id', protect, upload.single('media'), updateArticle);
 router.delete('/:id', protect, deleteArticle);
-// router.post('/', protect, upload.single('media'), createArticle);
-// router.put('/:id', protect, upload.single('media'), updateArticle);
-// router.delete('/:id', protect, deleteArticle);
+
 
 module.exports = router;

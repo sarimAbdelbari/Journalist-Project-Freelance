@@ -16,12 +16,17 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
     role :{
-        enum: ['abonné', 'admin', 'journaliste'],
+        enum: ['abonné', 'journaliste', 'admin'],
+        default: 'abonné',
         type: String,
     },
     favorites: {
         type: [String],
         default: [],
+    },
+    active: {
+        type: Boolean,
+        default: true,
     },
     
 }, { timestamps: true });

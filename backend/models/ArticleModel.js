@@ -12,12 +12,17 @@ const articleSchema = new mongoose.Schema({
         required: [true, 'Please add content'],
     },
     category: {
-        type: String,
-        required: [true, 'Please add a category']
+        type: [String],
+        enum: ['business', 'entertainment', 'health', 'science', 'sports', 'technology','other'],
+        default: ['other'],
+        validate: {
+            validator: function(array) {
+                return array.every(value => ['business', 'entertainment', 'health', 'science', 'sports', 'technology', 'other'].includes(value));
+            },
+            message: 'Each category must be from the allowed list'
+        }
     },
-    tags: [{
-        type: String
-    }],
+    tags: [String],
     mediaType: {
         type: String,
         enum: ['image', 'video', 'none'],
@@ -31,9 +36,10 @@ const articleSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
+    status: {
+        type: String,
+        enum: ['pending', 'approved','denied'],
+        default: 'pending'
     }
 }, {
     timestamps: true

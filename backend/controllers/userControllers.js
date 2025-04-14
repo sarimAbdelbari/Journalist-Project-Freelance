@@ -3,13 +3,18 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const registerUser = async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { username, email, password, role } = req.body;
 
     try {
         // Check if user already exists
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
+        }
+        // Check if user already exists
+        const existingEmail = await User.findOne({ email });
+        if (existingEmail) {
+            return res.status(400).json({ message: 'Email already exists' });
         }
 
         // Hash password
@@ -17,10 +22,10 @@ const registerUser = async (req, res) => {
 
         // Create new user
         const user = await User.create({
-            name,
+            username,
             email,
             password: hashedPassword,
-            role: role || 'user' // Default role if not provided
+            role: role || 'abonné' // Default role if not provided
         });
 
         // Generate JWT token
@@ -35,7 +40,7 @@ const registerUser = async (req, res) => {
             token,
             user: {
                 id: user._id,
-                name: user.name,
+                username: user.username,
                 email: user.email,
                 role: user.role
             }
@@ -75,7 +80,7 @@ const loginUser = async (req, res) => {
             token,
             user: {
                 id: user._id,
-                name: user.name,
+                username: user.username,
                 email: user.email,
                 role: user.role
             }
@@ -87,9 +92,47 @@ const loginUser = async (req, res) => {
     }
 }
 
+const getUserById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({}, '-password'); // Exclude password field
+        res.status(200).json({
+            users: users.map(user => ({
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role
+            }))
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 const updateUser = async (req, res) => {
     const { id } = req.params;
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
     try {
         const user = await User.findById(id);
@@ -97,7 +140,7 @@ const updateUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        if (name) user.name = name;
+        if (username) user.username = username;
         if (email) user.email = email;
         if (password) user.password = await bcrypt.hash(password, 10);
 
@@ -124,6 +167,6 @@ const deleteUser = async (req, res) => {
     }
 }
 
-module.exports = { registerUser, loginUser, updateUser, deleteUser };
+module.exports = { registerUser, loginUser, getUserById ,getAllUsers, updateUser, deleteUser };
 
 

@@ -141,6 +141,14 @@ const getArticleById = async (req, res) => {
     }
 };
 
+const getArticlesByCategory = async (req, res) => {
+  try {
+    
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 
 // Delete article
 const deleteArticle = async (req, res) => {
