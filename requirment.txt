@@ -1,0 +1,7 @@
+# Journalist-Project-Freelance
+
+make the login page and the register page using shadcn templete  ✅
+VITE_API_URL="http://localhost:5000/api" ✅
+integrate the backend logic of Auth Login regiter checkAuth to the front end ✅
+role based browsing  
+

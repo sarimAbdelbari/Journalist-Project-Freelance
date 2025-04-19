@@ -6,13 +6,17 @@ const {
     createArticle,
     getArticles,
     getArticleById,
+    getArticlesByCategory,
     updateArticle,
     deleteArticle
 } = require('../controllers/articleControllers');
 
 // Public routes
-router.get('/', getArticles);
-router.get('/:id', getArticleById);
+router.get('/',protect, getArticles);
+router.get('/:id', protect, getArticleById);
+
+router.get('/category/:category', protect, getArticlesByCategory);
+// router.get('/category/:category', protect, getArticlesByCategory);
 
 // Protected routes with file upload
 // router.post('/', upload.single('media'), createArticle);
