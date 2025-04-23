@@ -11,6 +11,7 @@ import Dashboard from "@/pages/dashboard/dashboard";
 import ProtectedRoute from "@/components/providers/protectedRoute";
 import { useStateContext } from "./contexts/ContextProvider";
 import SidebarWapper from "./components/layout/sidebarwapper";
+import Container from "./components/layout/container";
 
 const App = () => {
   
@@ -49,7 +50,12 @@ const App = () => {
               redirectPath="/articles"
         />}
         >
-          <Route path="/articles" element={<ArticlesPage />} />
+          <Route path="/articles" element={
+            <Container>
+
+            <ArticlesPage />
+            </Container>
+            } />
         </Route>
 
     {/* Admin only routes */}

@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Eye, EyeClosed } from "lucide-react"
 
 export function RegisterForm({ className, onLoginClick, ...props }) {
   const [formData, setFormData] = useState({
@@ -24,6 +25,9 @@ export function RegisterForm({ className, onLoginClick, ...props }) {
   })
   const [isLoading, setIsLoading] = useState(false)
   
+  const [showPassword , setShowPassword] = useState(false)
+  const [showConfirmPassword , setShowConfirmPassword] = useState(false)
+
   const { setUserInfo } = useStateContext()
 
   const handleChange = (e) => {
@@ -118,26 +122,50 @@ export function RegisterForm({ className, onLoginClick, ...props }) {
 
         <div className="grid gap-3">
           <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="********"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="********"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 transition-opacity duration-400"
+            >
+              {showPassword ? 
+                <EyeClosed className="animate-in fade-in duration-400 ease-in-out" /> : 
+                <Eye className="animate-in fade-in duration-400 ease-in-out" />
+              }
+            </button>
+          </div>
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            placeholder="********"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
+          <div className="relative">
+            <Input
+              id="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="********"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 transition-opacity duration-400"
+            >
+              {showConfirmPassword ? 
+                <EyeClosed className="animate-in fade-in duration-400 ease-in-out" /> : 
+                <Eye className="animate-in fade-in duration-400 ease-in-out" />
+              }
+            </button>
+          </div>
         </div>
 
         <div className="grid gap-3">
