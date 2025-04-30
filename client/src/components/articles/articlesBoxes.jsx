@@ -28,11 +28,11 @@ const ArticlesBoxes = () => {
       {/* Search and Filter Bar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-grow">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /> 
           <Input 
             placeholder="Search articles..." 
             className="pl-10"
-            value={searchQuery}
+            value={searchQuery} 
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
