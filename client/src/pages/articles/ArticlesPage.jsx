@@ -5,7 +5,6 @@ import React from 'react'
 const ArticlesPage = () => {
   return (
     <div>
-
     <NavBar/>
     <ArticlesBoxes/>
 

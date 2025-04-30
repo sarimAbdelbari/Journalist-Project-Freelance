@@ -1,18 +1,20 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
-
+const path = require('path'); // Import path
 
 const registerUser = async (req, res) => {
+    // req.file is available here thanks to the uploadAvatar middleware in the route
     const { username, email, password, role } = req.body;
+    const avatarFile = req.file; // Get the uploaded file info
 
     try {
         // Check if user already exists
         const existingUser = await User.findOne({ username });
         if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({ message: 'Username already exists' });
         }
-        // Check if user already exists
+        // Check if email already exists
         const existingEmail = await User.findOne({ email });
         if (existingEmail) {
             return res.status(400).json({ message: 'Email already exists' });
@@ -21,15 +23,24 @@ const registerUser = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Determine the image path to save
+        let imagePath = null; // Default to null if no file uploaded
+        if (avatarFile) {
+            // Construct the path relative to how you'll serve static files
+            // Example: If 'uploads' is served as '/uploads'
+            imagePath = `/uploads/avatars/${avatarFile.filename}`;
+            // Or store the full path if needed, but relative is often better
+            // imagePath = avatarFile.path;
+        }
+
         // Create new user
         const user = await User.create({
             username,
             email,
             password: hashedPassword,
-            role: role || 'abonné' // Default role if not provided
+            role: role || 'abonné', // Default role if not provided
+            imagepic: imagePath // Save the path to the database
         });
-
-      
 
         res.status(201).json({
             message: 'User registered successfully',
@@ -37,13 +48,20 @@ const registerUser = async (req, res) => {
                 id: user._id,
                 username: user.username,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                imagepic: user.imagepic // Include image path in response
             }
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        console.error("Registration Error:", error);
+        // Handle potential Multer errors specifically if needed
+        if (error instanceof multer.MulterError) {
+             return res.status(400).json({ message: `File upload error: ${error.message}` });
+        } else if (error.message.includes('Not an image')) { // Check for custom filter error
+             return res.status(400).json({ message: error.message });
+        }
+        res.status(500).json({ message: 'Internal server error during registration' });
     }
 }
 
@@ -120,7 +138,7 @@ const checkAuth = async (req, res) => {
         }
  
     
-        // Return user data
+        // Return user data including imagepic
         return res.status(200).json({ 
             success: true,
             user: {
@@ -129,7 +147,8 @@ const checkAuth = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 favorites: user.favorites,
-                active: user.active
+                active: user.active,
+                imagepic: user.imagepic // Add imagepic here
             }
         });
     }

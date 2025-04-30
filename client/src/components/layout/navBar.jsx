@@ -25,7 +25,7 @@ const NavBar = () => {
   const { role } = userInfo || {}
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-2 mt-2.5 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between">
         <NavLogo />
         
@@ -34,9 +34,9 @@ const NavBar = () => {
           <NavSearch />
           
           <div className="flex items-center gap-4">
-            {(role === 'journalist' || role === 'admin') && (
+            {(role === 'journaliste' || role === 'admin') && (
               <Link 
-                href="/dashboard"
+                to="/dashboard"
                 className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary"
               >
                 <BookDashed className="h-4 w-4" />
@@ -53,7 +53,7 @@ const NavBar = () => {
 
 export function NavLogo() {
     return (
-      <Link href="/" className="flex items-center space-x-2">
+      <Link to="/" className="flex items-center space-x-2">
         <img 
           src="/assets/logoDark.png" 
           alt="Logo" 
@@ -67,31 +67,23 @@ export function NavLogo() {
     return (
       <nav className="hidden md:flex items-center gap-6">
         <Link 
-          href="/"
+          to="/"
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
         >
           Home
         </Link>
         <Link 
-          href="/articles"
+          to="/articles"
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
         >
           Articles
         </Link>
         <Link 
-          href="/journalists"
+          to="/journalists"
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
         >
           Journalists
         </Link>
-        <DropdownMenu>
-          <DropdownMenuTrigger className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-            Categories
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {/* Add your categories here */}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </nav>
     )
   }
@@ -115,9 +107,9 @@ export function NavLogo() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.imageUrl || '/assets/user.png'} alt={user?.name} />
+              <AvatarImage src={user?.imageUrl || 'assets/user.png'} alt={user?.name} />
               <AvatarFallback>
-                {user?.name?.charAt(0) || 'U'}
+                {user?.username?.charAt(0) || 'U'}
               </AvatarFallback>
             </Avatar>
           </Button>
@@ -133,10 +125,7 @@ export function NavLogo() {
             <Settings className="mr-2 h-4 w-4" />
             Settings
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <ModeToggle />
-          </DropdownMenuItem>
+          <DropdownMenuSeparator />         
           <DropdownMenuSeparator />
           <DropdownMenuItem className="text-red-600">
             <LogOut className="mr-2 h-4 w-4" />

@@ -8,12 +8,6 @@ import { recentArticles } from '@/dummyData'
 const ArticlesBoxes = () => {
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Status badge colors
-  const statusColors = {
-    approved: "bg-green-100 text-green-800",
-    pending: "bg-yellow-100 text-yellow-800",
-    rejected: "bg-red-100 text-red-800"
-  };
 
   return (
     <div className="container mx-auto py-8">
@@ -49,8 +43,12 @@ const ArticlesBoxes = () => {
             <TabsTrigger value="all" className="rounded-full px-4 py-2">All Articles</TabsTrigger>
             <TabsTrigger value="business" className="rounded-full px-4 py-2">Business</TabsTrigger>
             <TabsTrigger value="politics" className="rounded-full px-4 py-2">Politics</TabsTrigger>
+            <TabsTrigger value="entertainment" className="rounded-full px-4 py-2">Entertainment</TabsTrigger>
+            <TabsTrigger value="health" className="rounded-full px-4 py-2">Health</TabsTrigger>
             <TabsTrigger value="technology" className="rounded-full px-4 py-2">Technology</TabsTrigger>
-            <TabsTrigger value="more" className="rounded-full px-4 py-2">.....</TabsTrigger>
+            <TabsTrigger value="science" className="rounded-full px-4 py-2">Science</TabsTrigger>
+            <TabsTrigger value="sports" className="rounded-full px-4 py-2">Sports</TabsTrigger>
+            <TabsTrigger value="other" className="rounded-full px-4 py-2">Other</TabsTrigger>
           </TabsList>
         </div>
        
@@ -59,10 +57,8 @@ const ArticlesBoxes = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentArticles.map((article) => (
               <div key={article.id} className="group relative rounded-lg border p-4 space-y-3 hover:border-primary transition-all hover:shadow-md">
-                {/* Status Badge */}
-                <div className={`absolute top-2 right-2 rounded-full px-3 py-1 text-xs font-medium capitalize ${statusColors[article.status]}`}>
-                  {article.status}
-                </div>
+                
+              
                 
                 {/* Thumbnail */}
                 <img

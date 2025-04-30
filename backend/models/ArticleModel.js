@@ -13,11 +13,11 @@ const articleSchema = new mongoose.Schema({
     },
     category: {
         type: [String],
-        enum: ['business', 'entertainment', 'health', 'science', 'sports', 'technology','other'],
+        enum: ['business', 'politics', 'entertainment', 'health', 'science', 'sports', 'technology','other'],
         default: ['other'],
         validate: {
             validator: function(array) {
-                return array.every(value => ['business', 'entertainment', 'health', 'science', 'sports', 'technology', 'other'].includes(value));
+                return array.every(value => ['business', 'politics', 'entertainment', 'health', 'science', 'sports', 'technology','other'].includes(value));
             },
             message: 'Each category must be from the allowed list'
         }

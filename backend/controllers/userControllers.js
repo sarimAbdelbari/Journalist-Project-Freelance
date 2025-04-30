@@ -39,6 +39,25 @@ const getAllUsers = async (req, res) => {
     }
 }
 
+const getJournalists = async (req, res) => {
+    try {
+        // Find all users with role 'journalist'
+        const journalists = await User.find({ role: 'journaliste' }, '-password');
+        
+        res.status(200).json({
+            journalists: journalists.map(journalist => ({
+                id: journalist._id,
+                username: journalist.username,
+                email: journalist.email,
+                role: journalist.role
+            }))
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+    
 const updateUser = async (req, res) => {
     const { id } = req.params;
     const { username, email, password } = req.body;

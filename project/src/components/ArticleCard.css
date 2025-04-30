@@ -1,0 +1,130 @@
+.article-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.article-card {
+  background-color: white;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.article-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.article-image-container {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+
+.article-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-normal);
+}
+
+.article-card:hover .article-image {
+  transform: scale(1.05);
+}
+
+.article-category {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  background-color: var(--color-primary-500);
+  color: white;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.article-content {
+  padding: var(--space-4);
+}
+
+.article-title {
+  margin-bottom: var(--space-2);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-neutral-900);
+  line-height: 1.4;
+}
+
+.article-excerpt {
+  color: var(--color-neutral-600);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.article-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.author-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-neutral-700);
+}
+
+.article-details {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.75rem;
+  color: var(--color-neutral-500);
+}
+
+.article-date,
+.article-read-time,
+.article-likes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.article-likes {
+  color: var(--color-accent-500);
+}
+
+@media (min-width: 640px) {
+  .article-content {
+    padding: var(--space-5);
+  }
+
+  .article-title {
+    font-size: 1.5rem;
+  }
+
+  .article-excerpt {
+    font-size: 1rem;
+  }
+}

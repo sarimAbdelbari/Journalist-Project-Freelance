@@ -11,24 +11,21 @@ const ProtectedRoute = ({
   const { isAuthentification, isLoading: authLoading } = useAuth();
   const { userInfo } = useStateContext();
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const checkAuthorization = () => {
-      console.log('=== Authorization Check ===');
-      console.log('Auth Loading:', authLoading);
-      console.log('Is Authenticated:', isAuthentification);
-      console.log('User Info:', userInfo);
-      console.log('Required Roles:', allowedRoles);
-      
       if (!isAuthentification || !userInfo?.role) {
         console.log('❌ Not authenticated or no user info');
         setIsAuthorized(false);
+        setIsChecking(false);
         return;
       }
 
       if (allowedRoles.length === 0) {
         console.log('✅ No specific roles required');
         setIsAuthorized(true);
+        setIsChecking(false);
         return;
       }
 
@@ -37,6 +34,7 @@ const ProtectedRoute = ({
       console.log('Has Required Role:', hasRequiredRole ? '✅' : '❌');
       
       setIsAuthorized(hasRequiredRole);
+      setIsChecking(false);
     };
 
     if (!authLoading) {
@@ -44,7 +42,8 @@ const ProtectedRoute = ({
     }
   }, [isAuthentification, userInfo, allowedRoles, authLoading]);
 
-  if (authLoading) {
+  // Don't render anything while still checking authorization
+  if (authLoading || isChecking) {
     return <div>Loading...</div>;
   }
 

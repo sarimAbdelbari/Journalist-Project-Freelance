@@ -116,6 +116,29 @@ const getArticles = async (req, res) => {
     }
 };
 
+const getArticlesByUser = async (req, res) => {
+    try {
+        const articles = await Article.find({ author: req.user.id })
+            .populate('author', 'name email')
+            .populate('comments')
+            .populate('likes', 'name email')
+            .sort({ createdAt: -1 });
+        
+        res.status(200).json({
+            success: true,
+            count: articles.length,
+            data: articles
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch articles by user',
+            error: error.message
+        });
+    }
+};
+
+
 // Get single article
 const getArticleById = async (req, res) => {
     try {
@@ -303,6 +326,7 @@ module.exports = {
     createArticle,
     getArticles,
     getArticleById,
+    getArticlesByUser,
     getArticlesByCategory,
     updateArticle,
     deleteArticle,

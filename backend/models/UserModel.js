@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema({
         type: [String],
         default: [],
     },
+    imagepic: {
+        type: String,
+        default: null,
+    },
     active: {
         type: Boolean,
         default: true,
@@ -31,4 +35,4 @@ const userSchema = new mongoose.Schema({
     
 }, { timestamps: true });
 
-module.exports =  mongoose.model('User', userSchema);    
+module.exports =  mongoose.model('User', userSchema);
