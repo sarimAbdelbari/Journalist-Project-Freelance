@@ -1,0 +1,150 @@
+.article-detail {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-6) 0;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: var(--space-6);
+  color: var(--color-neutral-600);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+  color: var(--color-primary-600);
+}
+
+.article-header {
+  margin-bottom: var(--space-6);
+}
+
+.article-meta-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.article-category {
+  background-color: var(--color-primary-500);
+  color: white;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.article-date {
+  color: var(--color-neutral-600);
+  font-size: 0.875rem;
+}
+
+.article-title {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: var(--space-6);
+  color: var(--color-neutral-900);
+}
+
+.article-author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.author-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.author-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-neutral-900);
+}
+
+.article-meta-bottom {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-neutral-600);
+  font-size: 0.875rem;
+}
+
+.article-likes {
+  color: var(--color-accent-500);
+}
+
+.article-hero {
+  margin: var(--space-8) 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.article-hero img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.article-content {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--color-neutral-800);
+}
+
+.article-excerpt {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--color-neutral-600);
+  margin-bottom: var(--space-6);
+}
+
+.article-body {
+  margin-top: var(--space-6);
+}
+
+.error-container {
+  text-align: center;
+  padding: var(--space-8) 0;
+}
+
+.error-container h2 {
+  color: var(--color-error-500);
+  margin-bottom: var(--space-4);
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  font-size: 1.125rem;
+  color: var(--color-neutral-600);
+}
+
+@media (max-width: 768px) {
+  .article-title {
+    font-size: 2rem;
+  }
+
+  .article-content {
+    font-size: 1rem;
+  }
+
+  .article-excerpt {
+    font-size: 1.125rem;
+  }
+}

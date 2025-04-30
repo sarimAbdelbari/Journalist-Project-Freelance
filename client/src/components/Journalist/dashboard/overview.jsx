@@ -1,11 +1,13 @@
-import React from 'react'
+import React , {useEffect , useState} from 'react'
 import { TabsContent } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { BookOpen, Clock, Eye, MessageSquare, PenSquare } from "lucide-react"
+import { BookOpen, Clock, Eye, MessageSquare, PenSquare, ThumbsUp } from "lucide-react"
 import { recentArticles, recentComments } from "@/dummyData"
+import axios from 'axios'
+import { useStateContext } from '@/contexts/ContextProvider'
 
 // Add missing StatsCard component
 const StatsCard = ({ title, value, icon }) => (
@@ -21,6 +23,13 @@ const StatsCard = ({ title, value, icon }) => (
 )
 
 const Overview = () => {
+
+  const userInfo = useStateContext();
+
+    const [recentArticles, setRecentArticles] = useState([])
+    const [recentComments, setRecentComments] = useState([])
+    const [loading, setLoading] = useState(false)
+
 
     // Helper Functions
 const getStatusVariant = (status) => {
@@ -40,7 +49,29 @@ const getStatusVariant = (status) => {
       .toUpperCase()
   }
   
-  
+  useEffect(() => {
+    const fetchRecentArticles = async () => {
+      try {
+        setLoading(true)
+        const response = await axios(`/articles/user/${userInfo._id}`)
+        const data = await response.json()
+        if (data.success) {
+          setRecentArticles(data.data)
+        } else {
+          console.error('Failed to fetch recent articles:', data.message)
+        }
+      } catch (error) {
+        setLoading(false)
+        console.error('Error fetching recent articles:', error)
+      }
+      finally{
+        setLoading(false)
+      }
+    }
+
+    fetchRecentArticles();
+  }, [])
+
 
   return (
     <TabsContent value="overview" className="space-y-8">
@@ -57,9 +88,9 @@ const getStatusVariant = (status) => {
         icon={<Clock className="h-4 w-4  text-yellow-600" />}
       />
       <StatsCard 
-        title="Total Views"
-        value="24,680"
-        icon={<Eye className="h-4 w-4 text-muted-foreground" />}
+        title="Total Likes"
+        value="400"
+        icon={<ThumbsUp className="h-4 w-4 text-muted-foreground" />}
       />
       <StatsCard 
         title="Total Engagement"

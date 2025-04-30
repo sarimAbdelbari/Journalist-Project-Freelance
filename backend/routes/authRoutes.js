@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const { uploadAvatar } = require('../middleware/uploadMiddleware');
 const { 
     registerUser, 
     loginUser, 
@@ -10,7 +10,7 @@ const {
 
 // Public routes
 router.post('/checkAuth', checkAuth);
-router.post('/register', registerUser);
+router.post('/register',uploadAvatar, registerUser);
 router.post('/login', loginUser);
 router.post('/logout', Logout);
 

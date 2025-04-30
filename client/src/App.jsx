@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Outlet, Navigate } from "react-router-dom";
 import LoginPage from "@/pages/login/login";
 import HomePage from "@/pages/homePage";
 import { ToastContainer } from "react-toastify";
@@ -12,13 +12,22 @@ import ProtectedRoute from "@/components/providers/protectedRoute";
 import { useStateContext } from "./contexts/ContextProvider";
 import SidebarWapper from "./components/layout/sidebarwapper";
 import Container from "./components/layout/container";
+import ArticleCreate from "./components/articles/articleCreate";
+import NavBar from "./components/layout/navBar";
+
+// Create a layout component that applies the sidebar wrapper
+const JournalistLayout = () => {
+  return (
+    <Container className="flex flex-col gap-2">
+      <NavBar/>
+      <Outlet />
+    </Container>
+  );
+};
 
 const App = () => {
-  
-  const {userInfo } = useStateContext();
+  const { userInfo } = useStateContext();
   const { theme } = useTheme();
- 
-   console.log("userInfo" , userInfo)
 
   return (
     <div>
@@ -34,66 +43,60 @@ const App = () => {
         pauseOnHover
         theme={theme}
       />
-      
-   
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/*" element={<LoginPage />} />
 
-         {/* Protected routes - aboneé */}
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
 
+        {/* Role-based redirects */}
         <Route 
-        element={
-          <ProtectedRoute
-              allowedRoles={["abonné" , "journaliste"]}
-              redirectPath="/articles"
-        />}
+          path="/app"
+          element={
+            userInfo ? (
+              userInfo.role === "journaliste" ? 
+                <Navigate to="/dashboard" replace /> : 
+                <Navigate to="/articles" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        {/* Protected routes - abonné */}
+        <Route 
+          element={
+            <ProtectedRoute
+              allowedRoles={["abonné", "journaliste"]}
+              redirectPath="/login"
+            />
+          }
         >
           <Route path="/articles" element={
             <Container>
-
-            <ArticlesPage />
+              <ArticlesPage />
             </Container>
-            } />
+          } />
         </Route>
 
-    {/* Admin only routes */}
-    <Route 
-          path="/dashboard" 
+        {/* Journalist routes with shared sidebar */}
+        <Route 
           element={
-            <ProtectedRoute 
-              allowedRoles={['admin']} 
-              redirectPath="/dashboard"
-            >
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
+            <ProtectedRoute
+              allowedRoles={["journaliste"]}
+              redirectPath="/login"
+            />
+          }
+        >
+          <Route element={<JournalistLayout />}> 
+            <Route index path="/dashboard" element={<Jdashboard />} />
+            <Route path="/dashboard/articles/create" element={<ArticleCreate />} />
+          </Route>
+        </Route>
 
-
-{/* Manager routes */}
-       <Route 
-          path="/journaliste/dashboard" 
-          element={
-            <ProtectedRoute 
-              allowedRoles={['journaliste']} 
-              redirectPath="/journaliste/dashboard"
-            >
-              <SidebarWapper>
-
-              <Jdashboard />
-              </SidebarWapper>
-            </ProtectedRoute>
-          } 
-        />
-
-
-        </Routes>
-     
-
-        
-     
+        {/* Fallback redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </div>
   );
 };

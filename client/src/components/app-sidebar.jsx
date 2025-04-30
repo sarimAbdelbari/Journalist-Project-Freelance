@@ -32,20 +32,6 @@ export function AppSidebar({ ...props }) {
             title: "Dashboard",
             url: "/journaliste/dashboard",
             icon: LayoutDashboard,
-            items: [
-              {
-                title: "Overview",
-                url: "/journaliste/dashboard",
-              },
-              {
-                title: "Articles",
-                url: "/journaliste/dashboard/articles",
-              },
-              {
-                title: "Comments",
-                url: "/journaliste/dashboard/comments",
-              },
-            ],
             isActive: true,
           },
           {
@@ -59,7 +45,7 @@ export function AppSidebar({ ...props }) {
               },
               {
                 title: "Create Article",
-                url: "/articles/CreateArticle",
+                url: "/dashboard/articles/create",
               },
               {
                 title: "Published",
