@@ -1,18 +1,18 @@
 :root {
-  --color-primary-50: #f9faff;
-  --color-primary-100: #eef2ff;
-  --color-primary-200: #e0e7ff;
-  --color-primary-300: #c7d2fe;
-  --color-primary-400: #a5b4fc;
-  --color-primary-500: #818cf8;
-  --color-primary-600: #4f46e5; /* From your original oklch(0.21 0.006 285.885) */
-  --color-primary-700: #4338ca;
-  --color-primary-800: #3730a3;
-  --color-primary-900: #312e81;
+  --color-primary-50: #f0f4f8;
+  --color-primary-100: #d9e2ec;
+  --color-primary-200: #bcccdc;
+  --color-primary-300: #9fb3c8;
+  --color-primary-400: #829ab1;
+  --color-primary-500: #486581;
+  --color-primary-600: #334e68;
+  --color-primary-700: #243b53;
+  --color-primary-800: #102a43;
+  --color-primary-900: #102235;
 
   /* Secondary Colors */
-  --color-secondary-500: #6E42E5; /* Based on your secondary oklch(0.967 0.001 286.375) */
-  --color-secondary-600: #5D36CD;
+  --color-secondary-500: #486581;
+  --color-secondary-600: #334e68;
 
   /* Accent Colors */
   --color-accent-500: #FF5C8D; /* Based on your accent oklch(0.967 0.001 286.375) */

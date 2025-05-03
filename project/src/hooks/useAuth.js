@@ -1,34 +1,35 @@
-import { useEffect, useState } from 'react';
-import axios from '@/api/axios';
-import { error_toast } from '@/utils/toastNotification';
+import { useState, useEffect } from 'react';
 import { useStateContext } from '@/contexts/ContextProvider';
+import axios from '@/api/axios';
 
-const useAuth = () => {
-  const { setUserInfo } = useStateContext();
-  const [isAuthentification, setIsAuthentification] = useState(null); // Changed initial state to null
+export function useAuth() {
+  const { userInfo, setUserInfo } = useStateContext();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const result = await axios.post('/auth/checkAuth', {}, {
-          withCredentials: true,
-        });
-        
-        setUserInfo(result.data.user);
-        setIsAuthentification(true);
+        const response = await axios.post('/auth/checkAuth', {}, { withCredentials: true });
+
+        if (response.data.success) {
+          setUserInfo(response.data.user);
+          setIsAuthenticated(true);
+        } else {
+          setUserInfo(null);
+          setIsAuthenticated(false);
+        }
       } catch (error) {
-        console.error('Authentication check failed:', error);
-        setIsAuthentification(false);
-        error_toast("Authentication check failed");
+        console.error("Auth check failed", error);
+        setUserInfo(null);
+        setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
       }
     };
+    
     checkAuth();
-  }, [setUserInfo]);
+  }, []);
   
-  return { isAuthentification, isLoading };
-};
-
-export default useAuth;
+  return { isAuthenticated, isLoading };
+}
