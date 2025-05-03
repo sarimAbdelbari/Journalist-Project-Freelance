@@ -90,6 +90,11 @@ const Navbar = () => {
           <Link to="/my-articles" className={`nav-link ${isActive('/my-articles')}`}>
             <FaNewspaper /> <span>My Articles</span>
           </Link>
+          {userInfo?.role === 'journaliste' && (
+  <Link to="/profile" className={`nav-link ${isActive('/profile')}`}>
+    <FaUserEdit /> <span>My Profile</span>
+  </Link>
+)}
           <Link to="/favorites" className={`nav-link ${isActive('/favorites')}`}>
             <FaStar /> <span>Favorites</span>
           </Link>

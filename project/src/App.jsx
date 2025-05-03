@@ -11,7 +11,10 @@ import Navbar from '@/components/layout/navbar/navbar'
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth'
 import ArticleCreate from './pages/client/ArticleCreate'
-import Dashbaord from './pages/admin/Dashbaord'
+import Dashboard from './pages/admin/dashboard/Dashboard'
+import Sidebar from './components/layout/sidebar/sidebar'
+import Users from './pages/admin/users/users'
+import JournalistProfile from './pages/client/journalistProfile'
 
 const MainLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -24,6 +27,7 @@ const MainLayout = () => {
     <>
       {userInfo.role == "journaliste" && (
 <>
+<Navbar />
         
         <Outlet />
 </>
@@ -44,10 +48,11 @@ const AdminLayout = () => {
     <>
       {/* <Sidebar /> */}
       {userInfo.role == "admin" &&(
-        <>
-          <Navbar />
+        
+        <Sidebar>
           <Outlet />
-        </>
+        </Sidebar>
+        
       )}
       
     </>
@@ -84,12 +89,17 @@ function App() {
           <Route path="/article/create-article" element={<ArticleCreate />} />
           <Route path="/article/new" element={<Article />} />
           <Route path="/article/:id" element={<Article />} />
+          <Route path="/profile/:id?" element={<JournalistProfile />} />
           {/* Add more routes for journalists and abonnés here, use userInfo.role inside MainLayout if needed */}
         </Route>
 
         {/* Admin routes */}
         <Route element={<AdminLayout />}>
-          <Route path="/dashboard" element={<Dashbaord />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/users" element={<Users />} />
+          <Route path="/dashboard/journaliste" element={<Dashboard />} />
+          <Route path="/dashboard/articles" element={<Dashboard />} />
+          <Route path="/dashboard/comments" element={<Dashboard />} />
           {/* Add admin-specific routes here */}
         </Route>
 
