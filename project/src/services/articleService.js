@@ -19,7 +19,7 @@ const articles = [
     excerpt: "Analysis of emerging economic patterns and their impact on global markets.",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
     imageUrl: "https://images.pexels.com/photos/187041/pexels-photo-187041.jpeg",
-    category: "economics",
+    category: "business",
     author: "James Wilson",
     authorImage: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg",
     date: "2025-02-14",
@@ -45,7 +45,7 @@ const articles = [
     excerpt: "Exploring innovative approaches to building environmentally conscious cities.",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
     imageUrl: "https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg",
-    category: "environment",
+    category: "science",
     author: "Michael Green",
     authorImage: "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg",
     date: "2025-02-12",
@@ -58,7 +58,7 @@ const articles = [
     excerpt: "Understanding the mental health impacts of digital connectivity.",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
     imageUrl: "https://images.pexels.com/photos/267399/pexels-photo-267399.jpeg",
-    category: "psychology",
+    category: "entertainment",
     author: "Dr. Lisa Thompson",
     authorImage: "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg",
     date: "2025-02-11",
@@ -103,8 +103,37 @@ const articles = [
     date: "2025-02-08",
     readTime: "13 min read",
     likes: 298
+  },
+  {
+    id: 9,
+    title: "Election Results Analysis",
+    excerpt: "Breaking down the impact of recent elections on policy direction.",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    imageUrl: "https://images.pexels.com/photos/1550337/pexels-photo-1550337.jpeg",
+    category: "politics",
+    author: "Jennifer Adams",
+    authorImage: "https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg",
+    date: "2025-02-07",
+    readTime: "10 min read",
+    likes: 342
+  },
+  {
+    id: 10,
+    title: "World Cup Predictions",
+    excerpt: "Expert analysis on the upcoming international football tournament.",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    imageUrl: "https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg",
+    category: "sports",
+    author: "Carlos Rodriguez",
+    authorImage: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg",
+    date: "2025-02-06",
+    readTime: "8 min read",
+    likes: 456
   }
 ];
+
+// Define the allowed categories
+export const allowedCategories = ['business', 'politics', 'entertainment', 'health', 'science', 'sports', 'technology', 'other'];
 
 // Simulate API call to fetch articles
 export const getArticles = () => {
@@ -125,6 +154,15 @@ export const getArticleById = (id) => {
       } else {
         reject(new Error('Article not found'));
       }
+    }, 300);
+  });
+};
+
+// Get all categories
+export const getCategories = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(allowedCategories);
     }, 300);
   });
 };

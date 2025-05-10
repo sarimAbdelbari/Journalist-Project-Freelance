@@ -1,11 +1,11 @@
-import  { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useStateContext } from '@/contexts/ContextProvider';
 import Cookies from 'js-cookie';
 import './navbar.css';
 // Icons
-import { FaHome, FaNewspaper, FaStar, FaUsers, FaPencilAlt, FaChartBar, 
-  FaClipboardList, FaUserEdit, FaUserFriends, FaBars, FaTimes } from 'react-icons/fa';
+import { FaHome, FaNewspaper, FaStar, FaUsers, FaPencilAlt, 
+  FaUserEdit, FaBars, FaTimes, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
 import { MdLogout, MdSettings } from 'react-icons/md';
 import { CgProfile } from 'react-icons/cg';
 
@@ -19,6 +19,11 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef(null);
+  
+const isLoggedIn = (obj) => obj && Object.keys(obj).length > 0;
+  
+  
+
   // Toggle mobile menu
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -32,6 +37,7 @@ const Navbar = () => {
   // Handle logout
   const handleLogout = () => {
     Cookies.remove('token');
+    localStorage.removeItem('userInfo');
     setUserInfo(null);
     navigate('/login');
   };
@@ -60,24 +66,48 @@ const Navbar = () => {
     return location.pathname === path ? 'active' : '';
   };
 
-  // Get appropriate navigation links based on user role
-  const getNavLinks = () => {
-    const role = userInfo?.role;
+// Add this to navbar.jsx, before the return statement
+useEffect(() => {
+  console.log('Navbar auth state:', {
+    userInfo,
+    isUserLoggedIn: isLoggedIn(userInfo),
+    token: Cookies.get('token')
+  });
+}, [userInfo]);
 
-    if (role === 'admin') {
+  // Get appropriate navigation links based on user role or guest status
+  const getNavLinks = () => {
+    if (!isLoggedIn(userInfo)) {
+      // Navigation links for guests (unsigned visitors)
       return (
         <>
-          <Link to="/admin/dashboard" className={`nav-link ${isActive('/admin/dashboard')}`}>
-            <FaChartBar /> <span>Dashboard</span>
+          <Link to="/" className={`nav-link ${isActive('/')}`}>
+            <FaHome /> <span>Home</span>
           </Link>
-          <Link to="/admin/articles" className={`nav-link ${isActive('/admin/articles')}`}>
-            <FaClipboardList /> <span>Manage Articles</span>
+          <Link to="/journalists" className={`nav-link ${isActive('/journalists')}`}>
+            <FaUsers /> <span>Journalists</span>
           </Link>
-          <Link to="/admin/journalists" className={`nav-link ${isActive('/admin/journalists')}`}>
-            <FaUserEdit /> <span>Manage Journalists</span>
+          {/* <Link to="/articles" className={`nav-link ${isActive('/articles')}`}>
+            <FaNewspaper /> <span>Articles</span>
+          </Link> */}
+        </>
+      );
+    }
+
+    // Navigation links for signed-in users based on role
+    const role = userInfo?.role;
+
+    if (role === 'abonné') {
+      return (
+        <>
+          <Link to="/" className={`nav-link ${isActive('/')}`}>
+            <FaHome /> <span>Home</span>
           </Link>
-          <Link to="/admin/subscribers" className={`nav-link ${isActive('/admin/subscribers')}`}>
-            <FaUserFriends /> <span>Manage Subscribers</span>
+          <Link to="/favorites" className={`nav-link ${isActive('/favorites')}`}>
+            <FaStar /> <span>Favorites</span>
+          </Link>
+          <Link to="/journalists" className={`nav-link ${isActive('/journalists')}`}>
+            <FaUsers /> <span>Journalists</span>
           </Link>
         </>
       );
@@ -90,11 +120,9 @@ const Navbar = () => {
           <Link to="/my-articles" className={`nav-link ${isActive('/my-articles')}`}>
             <FaNewspaper /> <span>My Articles</span>
           </Link>
-          {userInfo?.role === 'journaliste' && (
-  <Link to="/profile" className={`nav-link ${isActive('/profile')}`}>
-    <FaUserEdit /> <span>My Profile</span>
-  </Link>
-)}
+          {/* <Link to="/journalist" className={`nav-link ${isActive('/journalist')}`}>
+            <FaUserEdit /> <span>My Profile</span>
+          </Link> */}
           <Link to="/favorites" className={`nav-link ${isActive('/favorites')}`}>
             <FaStar /> <span>Favorites</span>
           </Link>
@@ -106,29 +134,22 @@ const Navbar = () => {
           </Link>
         </>
       );
-    } else {
-      // Default for subscribers (abonnés)
+    } else { // For any other role or if role is undefined
       return (
         <>
           <Link to="/" className={`nav-link ${isActive('/')}`}>
             <FaHome /> <span>Home</span>
           </Link>
-          <Link to="/favorites" className={`nav-link ${isActive('/favorites')}`}>
-            <FaStar /> <span>Favorites</span>
-          </Link>
           <Link to="/journalists" className={`nav-link ${isActive('/journalists')}`}>
             <FaUsers /> <span>Journalists</span>
           </Link>
+          {/* <Link to="/articles" className={`nav-link ${isActive('/articles')}`}>
+            <FaNewspaper /> <span>Articles</span>
+          </Link> */}
         </>
-      ); 
+      );
     }
   };
-
- 
-  // If not logged in, don't show the navigation
-  if (!userInfo) return null;
-
-  console.log(import.meta.env.VITE_API_URL ,userInfo.imagepic) 
 
   return (
     <nav className="navbar">  
@@ -150,48 +171,61 @@ const Navbar = () => {
           {getNavLinks()}
         </div>
 
-        {/* Profile and settings */}
-        <div className="navbar-profile" ref={dropdownRef}>
-          <button className="profile-btn" onClick={toggleDropdown}>
-            {userInfo?.imagepic ? (
-              <img 
-              src={userInfo.imagepic.startsWith('http') 
-                ? userInfo.imagepic 
-                : `${import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')}${userInfo.imagepic}`} 
-              alt="Profile" 
-              className="profile-img"
-              onError={(e) => {
-                console.error("Image failed to load:", e.target.src);
-                e.target.onerror = null;
-              }}
-            />
-            ) : (
-              <div className="profile-img-placeholder">
-                {userInfo?.username?.charAt(0)?.toUpperCase() || 'U'}
+        {/* Profile section or Auth buttons */}
+        {isLoggedIn(userInfo) ? (
+          // Profile dropdown for logged-in users
+          <div className="navbar-profile" ref={dropdownRef}>
+            <button className="profile-btn" onClick={toggleDropdown}>
+              {userInfo?.imagepic ? (
+                <img 
+                  src={userInfo.imagepic.startsWith('http') 
+                    ? userInfo.imagepic 
+                    : `${import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')}${userInfo.imagepic}`} 
+                  alt="Profile" 
+                  className="profile-img"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userInfo.username)}&background=random`;
+                  }}
+                />
+              ) : (
+                <div className="profile-img-placeholder">
+                  {userInfo?.username?.charAt(0)?.toUpperCase() || 'U'}
+                </div>
+              )}
+            </button>
+
+            {/* Profile Dropdown */}
+            {dropdownOpen && (
+              <div className="profile-dropdown">
+                <div className="dropdown-header">
+                  <p className="user-name">{userInfo.username}</p>
+                  <p className="user-role">{userInfo.role}</p>
+                </div>
+                <div className="dropdown-divider"></div>
+                <Link to="/profile" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                  <CgProfile /> Profile
+                </Link>
+                <Link to="#" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                  <MdSettings /> Settings
+                </Link>
+                <button onClick={handleLogout} className="dropdown-item logout-btn">
+                  <MdLogout /> Logout
+                </button>
               </div>
             )}
-          </button>
-
-          {/* Profile Dropdown */}
-          {dropdownOpen && (
-            <div className="profile-dropdown">
-              <div className="dropdown-header">
-                <p className="user-name">{userInfo.username}</p>
-                <p className="user-role">{userInfo.role}</p>
-              </div>
-              <div className="dropdown-divider"></div>
-              <Link to="/profile" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                <CgProfile /> Profile
-              </Link>
-              <Link to="/settings" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                <MdSettings /> Settings
-              </Link>
-              <button onClick={()=>handleLogout()} className="dropdown-item logout-btn">
-                <MdLogout /> Logout
-              </button>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          // Authentication buttons for guests
+          <div className="auth-buttons">
+            <Link to="/login" className="login-btn">
+              <FaSignInAlt /> <span>Login</span>
+            </Link>
+            <Link to="/register" className="register-btn">
+              <FaUserPlus /> <span>Sign Up</span>
+            </Link>
+          </div>
+        )}
       </div>
     </nav>
   );

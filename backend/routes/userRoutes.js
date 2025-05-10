@@ -10,7 +10,7 @@ const {
 
 
 
-router.get('/',protect, authorize('admin') , getAllUsers);
+router.get('/', getAllUsers);
 router.get('/:id',protect, authorize('admin'), getUserById);
 
 // Protected routes

@@ -5,7 +5,7 @@ import axios from "@/api/axios";
 import { useStateContext } from "@/contexts/ContextProvider";
 import logoDark from "@/assets/logoDark.png";
 import loginBg from "@/assets/background/loginBg.jpg";
-import "@/pages/client/Auth.css";
+import "@/pages/client/Auth/Auth.css";
 import { FaCamera } from "react-icons/fa"; 
 
 function Register() {

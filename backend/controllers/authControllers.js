@@ -2,10 +2,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
 const path = require('path'); // Import path
+const multer = require('multer'); // Import multer for error handling
 
 const registerUser = async (req, res) => {
     // req.file is available here thanks to the uploadAvatar middleware in the route
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role, bio, socialLinks, expertiseAreas } = req.body;
     const avatarFile = req.file; // Get the uploaded file info
 
     try {
@@ -27,10 +28,29 @@ const registerUser = async (req, res) => {
         let imagePath = null; // Default to null if no file uploaded
         if (avatarFile) {
             // Construct the path relative to how you'll serve static files
-            // Example: If 'uploads' is served as '/uploads'
             imagePath = `/uploads/avatars/${avatarFile.filename}`;
-            // Or store the full path if needed, but relative is often better
-            // imagePath = avatarFile.path;
+        }
+
+        // Parse socialLinks if it's a string
+        let socialLinksObject = socialLinks;
+        if (typeof socialLinks === 'string') {
+            try {
+                socialLinksObject = JSON.parse(socialLinks);
+            } catch (error) {
+                console.error('Error parsing socialLinks:', error);
+                socialLinksObject = {};
+            }
+        }
+
+        // Parse expertiseAreas if it's a string
+        let expertiseAreasArray = expertiseAreas;
+        if (typeof expertiseAreas === 'string') {
+            try {
+                expertiseAreasArray = JSON.parse(expertiseAreas);
+            } catch (error) {
+                console.error('Error parsing expertiseAreas:', error);
+                expertiseAreasArray = [];
+            }
         }
 
         // Create new user
@@ -39,6 +59,9 @@ const registerUser = async (req, res) => {
             email,
             password: hashedPassword,
             role: role || 'abonné', // Default role if not provided
+            bio: bio || null, // Add bio field with default value if not provided
+            socialLinks: socialLinksObject || {},
+            expertiseAreas: expertiseAreasArray || [],
             imagepic: imagePath // Save the path to the database
         });
 
@@ -49,16 +72,18 @@ const registerUser = async (req, res) => {
                 username: user.username,
                 email: user.email,
                 role: user.role,
-                imagepic: user.imagepic // Include image path in response
+                bio: user.bio,
+                socialLinks: user.socialLinks,
+                expertiseAreas: user.expertiseAreas,
+                imagepic: user.imagepic
             }
         });
-
     } catch (error) {
         console.error("Registration Error:", error);
         // Handle potential Multer errors specifically if needed
         if (error instanceof multer.MulterError) {
              return res.status(400).json({ message: `File upload error: ${error.message}` });
-        } else if (error.message.includes('Not an image')) { // Check for custom filter error
+        } else if (error.message && error.message.includes('Not an image')) { // Check for custom filter error
              return res.status(400).json({ message: error.message });
         }
         res.status(500).json({ message: 'Internal server error during registration' });
@@ -96,7 +121,8 @@ const loginUser = async (req, res) => {
                 username: user.username,
                 email: user.email,
                 role: user.role,
-                imagepic: user.imagepic // <-- ADD THIS LINE
+                bio: user.bio, // Include bio in response
+                imagepic: user.imagepic
             }
         });
 
@@ -106,7 +132,6 @@ const loginUser = async (req, res) => {
     }
 }
 
-
 const Logout = async(req,res)=>{
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -114,7 +139,6 @@ const Logout = async(req,res)=>{
             return res.status(401).json({ message: 'Unauthorized' });
         }
 
-  
         res.status(200).json({ message: 'Logout successful' });
         
     } catch (error) {
@@ -138,8 +162,7 @@ const checkAuth = async (req, res) => {
             return res.status(401).json({ message: 'User not found' });
         }
  
-    
-        // Return user data including imagepic
+        // Return user data including bio and imagepic
         return res.status(200).json({ 
             success: true,
             user: {
@@ -147,9 +170,10 @@ const checkAuth = async (req, res) => {
                 username: user.username,
                 email: user.email,
                 role: user.role,
+                bio: user.bio, // Include bio in response
                 favorites: user.favorites,
                 active: user.active,
-                imagepic: user.imagepic // Add imagepic here
+                imagepic: user.imagepic
             }
         });
     }
@@ -162,4 +186,4 @@ const checkAuth = async (req, res) => {
     }
 }
 
-module.exports = { registerUser, loginUser ,checkAuth ,Logout };
+module.exports = { registerUser, loginUser, checkAuth, Logout };

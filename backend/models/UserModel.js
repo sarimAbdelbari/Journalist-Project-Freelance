@@ -15,10 +15,22 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    role :{
+    role: {
         enum: ['abonné', 'journaliste', 'admin'],
         default: 'abonné',
         type: String,
+    },
+    bio: {
+        type: String,
+        default: null,
+    },
+    socialLinks: {
+        twitter: String,
+        linkedin: String
+    },
+    expertiseAreas: {
+        type: [String],
+        default: []
     },
     favorites: {
         type: [String],
@@ -35,4 +47,4 @@ const userSchema = new mongoose.Schema({
     
 }, { timestamps: true });
 
-module.exports =  mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema);

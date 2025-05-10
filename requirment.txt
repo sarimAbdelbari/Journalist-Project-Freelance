@@ -5,3 +5,92 @@ VITE_API_URL="http://localhost:5000/api" ✅
 integrate the backend logic of Auth Login regiter checkAuth to the front end ✅
 role based browsing  
 
+
+
+
+[
+  {
+    "username": "sarah_chen",
+    "email": "sarah.chen@gmail.com",
+    "password": "123Password.",
+    "role": "journaliste",
+    "bio": "Sarah is a seasoned technology journalist with over 10 years of experience covering renewable energy and sustainability innovations.",
+    "socialLinks": {
+      "twitter": "https://twitter.com/sarahchen",
+      "linkedin": "https://linkedin.com/in/sarahchen"
+    },
+    "expertiseAreas": ["technology", "science", "business"]
+  },
+  {
+    "username": "james_wilson",
+    "email": "james.wilson@gmail.com",
+    "password": "123Password.",
+    "role": "journaliste",
+    "bio": "James specializes in economic analysis and global market trends with a particular focus on emerging markets.",
+    "socialLinks": {
+      "twitter": "https://twitter.com/jameswilson",
+      "linkedin": "https://linkedin.com/in/jameswilson"
+    },
+    "expertiseAreas": ["business", "politics", "technology"]
+  },
+  {
+    "username": "dr_emily_roberts",
+    "email": "emily.roberts@gmail.com",
+    "password": "123Password.",
+    "role": "journaliste",
+    "bio": "Dr. Roberts is a health correspondent with a background in medicine, focusing on healthcare technology and medical research.",
+    "socialLinks": {
+      "twitter": "https://twitter.com/dremroberts",
+      "linkedin": "https://linkedin.com/in/emilyroberts"
+    },
+    "expertiseAreas": ["health", "science", "technology"]
+  },
+  {
+    "username": "michael_green",
+    "email": "michael.green@gmail.com",
+    "password": "123Password.",
+    "role": "journaliste",
+    "bio": "Michael covers urban development and city planning with a focus on sustainable architecture and environmental policy.",
+    "socialLinks": {
+      "twitter": "https://twitter.com/michaelgreen",
+      "linkedin": "https://linkedin.com/in/michaelgreen"
+    },
+    "expertiseAreas": ["science", "politics", "other"]
+  },
+  {
+    "username": "dr_lisa_thompson",
+    "email": "lisa.thompson@gmail.com",
+    "password": "123Password.",
+    "role": "journaliste",
+    "bio": "A psychology expert specializing in digital behavior and the impacts of social media on mental health.",
+    "socialLinks": {
+      "twitter": "https://twitter.com/drlisathompson",
+      "linkedin": "https://linkedin.com/in/lisathompson"
+    },
+    "expertiseAreas": ["health", "entertainment", "technology"]
+  },
+  {
+    "username": "carlos_rodriguez",
+    "email": "carlos.rodriguez@gmail.com",
+    "password": "123Password.",
+    "role": "journaliste",
+    "bio": "Sports analyst with expertise in football, basketball, and Olympic events. Former professional athlete turned journalist.",
+    "socialLinks": {
+      "twitter": "https://twitter.com/carlosrodriguez",
+      "linkedin": "https://linkedin.com/in/carlosrodriguez"
+    },
+    "expertiseAreas": ["sports", "entertainment", "health"]
+  },
+  {
+    "username": "jennifer_adams",
+    "email": "jennifer.adams@gmail.com",
+    "password": "123Password.",
+    "role": "journaliste",
+    "bio": "Political correspondent covering national and international politics, with a focus on policy analysis and electoral systems.",
+    "socialLinks": {
+      "twitter": "https://twitter.com/jenniferadams",
+      "linkedin": "https://linkedin.com/in/jenniferadams"
+    },
+    "expertiseAreas": ["politics", "business", "other"]
+  }
+]
