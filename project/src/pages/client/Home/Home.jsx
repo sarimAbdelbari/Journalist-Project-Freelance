@@ -4,21 +4,26 @@ import { getArticles } from '@/services/articleService';
 import './Home.css';
 
 function Home() {
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-
-
   useEffect(() => {
     const loadArticles = async () => {
+      setLoading(true);
       try {
-        const data = await getArticles();
-        setArticles(data);
-        setLoading(false);
+        const response = await getArticles(); 
+        if (response.success && Array.isArray(response.data)) {
+          setArticles(response.data); 
+        } else {
+          console.error('Failed to fetch articles or data is not an array:', response.message || 'Invalid data format');
+          setArticles([]); 
+        }
       } catch (error) {
         console.error('Failed to fetch articles:', error);
+        setArticles([]); 
+      } finally {
         setLoading(false);
       }
     };
@@ -26,16 +31,24 @@ function Home() {
     loadArticles();
   }, []);
 
-  // Derived state for categories
-  const categories = ['all', ...new Set(articles.map(article => article.category))];
-
+  // Derived state for categories - FLATTEN and DEDUPLICATE
+  const uniqueCategories = Array.isArray(articles)
+    ? [...new Set(articles.flatMap(article => Array.isArray(article.category) ? article.category : []).filter(cat => typeof cat === 'string' && cat))]
+    : [];
+  const categories = ['all', ...uniqueCategories];
+  
   // Filter articles based on search and category
-  const filteredArticles = articles.filter(article => {
-    const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         article.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory;
+  const filteredArticles = Array.isArray(articles) ? articles.filter(article => {
+    const titleMatch = article.title && typeof article.title === 'string' ? article.title.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+    const excerptContent = article.excerpt || article.content || ''; 
+    const excerptMatch = typeof excerptContent === 'string' ? excerptContent.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+    const matchesSearch = titleMatch || excerptMatch;
+    
+    const articleCategoriesArray = Array.isArray(article.category) ? article.category : [];
+    const matchesCategory = selectedCategory === 'all' || articleCategoriesArray.includes(selectedCategory);
+    
     return matchesSearch && matchesCategory;
-  });
+  }) : [];
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -60,8 +73,6 @@ function Home() {
         <p>Discover thought-provoking journalism from leading writers</p>
       </div>
 
-     
-      
       <div className="search-filters">
         <div className="search-container">
           <input
@@ -76,7 +87,7 @@ function Home() {
         <div className="categories">
           {categories.map(category => (
             <button
-              key={category}
+              key={category} 
               className={`category-button ${selectedCategory === category ? 'active' : ''}`}
               onClick={() => handleCategoryChange(category)}
             >
@@ -90,7 +101,7 @@ function Home() {
         {filteredArticles.length > 0 ? (
           <div className="articles-grid">
             {filteredArticles.map(article => (
-              <ArticleCard key={article.id} article={article} />
+              <ArticleCard key={article._id || article.id} article={article} />
             ))}
           </div>
         ) : (

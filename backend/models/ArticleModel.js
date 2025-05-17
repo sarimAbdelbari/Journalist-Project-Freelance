@@ -48,6 +48,10 @@ const articleSchema = new mongoose.Schema({
         type: String,
         enum: ['pending', 'approved','denied'],
         default: 'pending'
+    },
+    readTime:{
+        type: String,
+        default: Math.floor(Math.random() * 10) + ' min read'
     }
 }, {
     timestamps: true

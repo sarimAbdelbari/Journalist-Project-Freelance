@@ -4,7 +4,7 @@ import axios from '@/api/axios';
 import Cookies from 'js-cookie';
 
 export function useAuth() {
-  const { userInfo, setUserInfo } = useStateContext();
+  const {  setUserInfo } = useStateContext();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   

@@ -99,7 +99,7 @@ const updateArticle = async (req, res) => {
 const getArticles = async (req, res) => {
     try {
         const articles = await Article.find({ status: 'approved' })
-            .populate('author', 'name email')
+            .populate('author', 'username email imagepic')
             .sort({ createdAt: -1 });
 
         res.status(200).json({

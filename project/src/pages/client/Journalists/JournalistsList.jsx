@@ -1,24 +1,24 @@
-// import React from 'react';
 import { useState, useEffect } from 'react';
-// import { Link } from 'react-router-dom';
-import { getJournalists } from '@/services/journalistService';
 import { FaTwitter, FaLinkedin, FaSearch } from 'react-icons/fa';
+import axios from '@/api/axios';
 import './JournalistsList.css';
 
 const JournalistsList = () => {
   const [journalists, setJournalists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedExpertise, setSelectedExpertise] = useState('all');
 
   useEffect(() => {
     const loadJournalists = async () => {
       try {
-        const data = await getJournalists();
-        setJournalists(data);
+        const response = await axios.get('/users/journalists');
+        setJournalists(response.data.journalists);
         setLoading(false);
       } catch (error) {
         console.error('Failed to fetch journalists:', error);
+        setError('Failed to load journalists. Please try again later.');
         setLoading(false);
       }
     };
@@ -29,19 +29,25 @@ const JournalistsList = () => {
   // Extract all unique expertise areas
   const allExpertiseAreas = ['all'];
   journalists.forEach(journalist => {
-    journalist.expertiseAreas.forEach(area => {
-      if (!allExpertiseAreas.includes(area)) {
-        allExpertiseAreas.push(area);
-      }
-    });
+    if (journalist.expertiseAreas) {
+      journalist.expertiseAreas.forEach(area => {
+        if (!allExpertiseAreas.includes(area)) {
+          allExpertiseAreas.push(area);
+        }
+      });
+    }
   });
 
   // Filter journalists based on search and expertise
   const filteredJournalists = journalists.filter(journalist => {
-    const matchesSearch = journalist.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         journalist.bio.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesExpertise = selectedExpertise === 'all' || 
-                            journalist.expertiseAreas.includes(selectedExpertise);
+    const matchesSearch = 
+      journalist.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (journalist.bio && journalist.bio.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+    const matchesExpertise = 
+      selectedExpertise === 'all' || 
+      (journalist.expertiseAreas && journalist.expertiseAreas.includes(selectedExpertise));
+      
     return matchesSearch && matchesExpertise;
   });
 
@@ -57,6 +63,14 @@ const JournalistsList = () => {
     return (
       <div className="container">
         <div className="loading-spinner">Loading journalists...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container">
+        <div className="error-message">{error}</div>
       </div>
     );
   }
@@ -82,19 +96,21 @@ const JournalistsList = () => {
           </div>
         </div>
         
-        <div className="categories expertise-categories">
-          {allExpertiseAreas.map(expertise => (
-            <button
-              key={expertise}
-              className={`category-button ${selectedExpertise === expertise ? 'active' : ''}`}
-              onClick={() => handleExpertiseChange(expertise)}
-            >
-              {expertise === 'all' 
-                ? 'All Expertise Areas' 
-                : expertise.charAt(0).toUpperCase() + expertise.slice(1)}
-            </button>
-          ))}
-        </div>
+        {allExpertiseAreas.length > 1 && (
+          <div className="categories expertise-categories">
+            {allExpertiseAreas.map(expertise => (
+              <button
+                key={expertise}
+                className={`category-button ${selectedExpertise === expertise ? 'active' : ''}`}
+                onClick={() => handleExpertiseChange(expertise)}
+              >
+                {expertise === 'all' 
+                  ? 'All Expertise Areas' 
+                  : expertise.charAt(0).toUpperCase() + expertise.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="journalists-container">
@@ -104,34 +120,42 @@ const JournalistsList = () => {
               <div className="journalist-card" key={journalist.id}>
                 <div className="journalist-header">
                   <img 
-                    src={journalist.profileImage} 
-                    alt={journalist.name}
+                    src={
+                      journalist.imagepic
+                        ? journalist.imagepic.startsWith('http')
+                          ? journalist.imagepic
+                          : `${import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')}${journalist.imagepic}`
+                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(journalist.username)}&background=334e68&color=fff&size=150`
+                    } 
+                    alt={journalist.username}
                     className="journalist-image"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(journalist.name)}&background=334e68&color=fff&size=150`;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(journalist.username)}&background=334e68&color=fff&size=150`;
                     }}
                   />
-                  <h2 className="journalist-name">{journalist.name}</h2>
+                  <h2 className="journalist-name">{journalist.username}</h2>
                 </div>
                 
-                <div className="journalist-expertise">
-                  {journalist.expertiseAreas.map(area => (
-                    <span key={area} className="expertise-tag">
-                      {area.charAt(0).toUpperCase() + area.slice(1)}
-                    </span>
-                  ))}
-                </div>
+                {journalist.expertiseAreas && journalist.expertiseAreas.length > 0 && (
+                  <div className="journalist-expertise">
+                    {journalist.expertiseAreas.map(area => (
+                      <span key={area} className="expertise-tag">
+                        {area.charAt(0).toUpperCase() + area.slice(1)}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 
-                <p className="journalist-bio">{journalist.bio}</p>
+                {journalist.bio && <p className="journalist-bio">{journalist.bio}</p>}
                 
                 <div className="journalist-footer">
                   <div className="journalist-joined">
-                    <span>Joined: {new Date(journalist.joinedDate).toLocaleDateString()}</span>
+                    <span>Joined: {new Date(journalist.createdAt).toLocaleDateString()}</span>
                   </div>
                   
                   <div className="journalist-social">
-                    {journalist.socialLinks.twitter && (
+                    {journalist.socialLinks && journalist.socialLinks.twitter && (
                       <a 
                         href={journalist.socialLinks.twitter} 
                         target="_blank" 
@@ -141,7 +165,7 @@ const JournalistsList = () => {
                         <FaTwitter />
                       </a>
                     )}
-                    {journalist.socialLinks.linkedin && (
+                    {journalist.socialLinks && journalist.socialLinks.linkedin && (
                       <a 
                         href={journalist.socialLinks.linkedin} 
                         target="_blank" 

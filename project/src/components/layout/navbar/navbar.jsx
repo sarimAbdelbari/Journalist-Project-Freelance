@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import './navbar.css';
 // Icons
 import { FaHome, FaNewspaper, FaStar, FaUsers, FaPencilAlt, 
-  FaUserEdit, FaBars, FaTimes, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
+   FaBars, FaTimes, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
 import { MdLogout, MdSettings } from 'react-icons/md';
 import { CgProfile } from 'react-icons/cg';
 

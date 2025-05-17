@@ -4,6 +4,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 const { 
     getAllUsers,
     getUserById,
+    getJournalists,
     updateUser, 
     deleteUser 
 } = require('../controllers/userControllers');
@@ -11,6 +12,7 @@ const {
 
 
 router.get('/', getAllUsers);
+router.get('/journalists',getJournalists);
 router.get('/:id',protect, authorize('admin'), getUserById);
 
 // Protected routes
