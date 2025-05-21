@@ -7,6 +7,8 @@ import Comments from '@/components/comments/Comments';
 import { useStateContext } from '@/contexts/ContextProvider';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { info_toast, sucess_toast, error_toast } from '@/utils/toastNotification';
+import { FaArrowLeft } from 'react-icons/fa';
+import { CiViewTimeline } from "react-icons/ci";
 
 function Article() {
   const { id } = useParams();
@@ -21,10 +23,14 @@ function Article() {
     const loadArticle = async () => {
       try {
         const response = await getArticleById(id);
+        
         if (response.success) {
           setArticle(response.data);
+          // Set like count from the likes array
           setLikeCount(response.data.likes.length);
-          if (userInfo && response.data.likes.includes(userInfo.id)) {
+          
+          // Check if current user has liked the article
+          if (userInfo && response.data.likes.some(like => like._id === userInfo.id)) {
             setIsLiked(true);
           } else {
             setIsLiked(false);
@@ -48,7 +54,9 @@ function Article() {
   }, [id, userInfo]);
 
   const handleLikeArticle = async () => {
-    if (!userInfo) {
+   
+
+    if (Object.keys(userInfo).length === 0) {
       info_toast("Please login to like articles.");
       return;
     }
@@ -83,7 +91,6 @@ function Article() {
   if (id === 'new') {
     return (
       <div className="container">
-        <p>Create new article form should be here.</p>
         <CreateArticle />
       </div>
     );
@@ -101,15 +108,30 @@ function Article() {
     );
   }
 
+  // Correctly format the image URL
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    // Remove /api from the end of the URL if it exists
+    const baseUrl = import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '');
+    
+    // If path already starts with http or https, return it as is
+    if (path.startsWith('http')) return path;
+    
+    // Ensure path starts with /
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${baseUrl}${normalizedPath}`;
+  };
+
   return (
     <div className="container">
       <article className="article-detail">
-        <Link to="/" className="back-link">← Back to Articles</Link>
+        <Link to="/" className="back-link"><FaArrowLeft/> Back to Articles</Link>
         
         <header className="article-header">
           <div className="article-meta-top">
             <span className="article-category">{Array.isArray(article.category) ? article.category.join(', ') : article.category}</span>
             <span className="article-date">{formatDate(article.createdAt)}</span>
+            <span className="article-read-time"> <CiViewTimeline />{article.readTime}</span>
           </div>
           
           <h1 className="article-title">{article.title}</h1>
@@ -117,12 +139,12 @@ function Article() {
           {article.author && (
             <div className="article-author">
               <img 
-                src={article.author.imagepic || `https://ui-avatars.com/api/?name=${encodeURIComponent(article.author.name || article.author.username)}&background=random`}
-                alt={article.author.name || article.author.username} 
+                src={getImageUrl(article.author.imagepic) || `https://ui-avatars.com/api/?name=${encodeURIComponent(article.author.username)}&background=random`}
+                alt={article.author.username} 
                 className="author-image"
               />
               <div className="author-details">
-                <span className="author-name">{article.author.name || article.author.username}</span>
+                <span className="author-name">{article.author.username}</span>
                 <div className="article-meta-bottom">
                   <button onClick={handleLikeArticle} className={`like-button ${isLiked ? 'liked' : ''}`}>
                     {isLiked ? <FaHeart /> : <FaRegHeart />} {likeCount} likes
@@ -137,12 +159,12 @@ function Article() {
           <div className="article-hero">
             {article.mediaType === 'image' ? (
               <img 
-                src={`${import.meta.env.VITE_API_URL.replace('/api','')}/${article.mediaUrl}`}
+                src={getImageUrl(article.mediaUrl.replace(/\\/g, '/'))}
                 alt={article.title} 
                 className="article-image"
               />
             ) : article.mediaType === 'video' ? (
-              <video controls src={`${import.meta.env.VITE_API_URL.replace('/api','')}/${article.mediaUrl}`} className="article-video">
+              <video controls src={getImageUrl(article.mediaUrl)} className="article-video">
                 Your browser does not support the video tag.
               </video>
             ) : null}
@@ -152,8 +174,30 @@ function Article() {
         <div className="article-content">
           <div className="article-body" dangerouslySetInnerHTML={{ __html: article.content }}></div>
         </div>
+        <div className="article-tags">
+          {article.tags && article.tags.length > 0 && article.tags.map((tag, index) => {
+            try {
+              // Each tag is a string that contains a JSON array
+              if (typeof tag === 'string' && tag.startsWith('[')) {
+                // Parse the JSON string to get the actual tags array
+                const parsedTags = JSON.parse(tag);
+                
+                // Map over each tag in the parsed array
+                return Array.isArray(parsedTags) ? parsedTags.map((t, idx) => (
+                  <span key={`${index}-${idx}`} className="article-tag">{t}</span>
+                )) : null;
+              } else {
+                // Fallback for any non-JSON formatted tags
+                return <span key={index} className="article-tag">{tag}</span>;
+              }
+            } catch (e) {
+              console.error("Failed to parse tag:", e);
+              return <span key={index} className="article-tag">{tag}</span>;
+            }
+          })}
+        </div>
         <div className="article-comments">
-          <Comments articleId={id}/>
+          <Comments articleId={id} comments={article.comments}/>
         </div>
       </article>
     </div>

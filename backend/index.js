@@ -5,6 +5,7 @@ const app = express();
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const articleRoutes = require('./routes/articleRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 const connectDB = require('./config/db');
 const path = require('path');
 
@@ -39,6 +40,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/articles', articleRoutes);
+app.use('/api/comments', commentRoutes);
 
 const port = process.env.PORT | 5000;
 

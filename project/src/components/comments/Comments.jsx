@@ -1,44 +1,25 @@
 import { useState, useEffect } from 'react';
 import { addComment as addArticleComment } from '../../services/articleService';
-import { getCommentsByArticleId, likeComment, deleteComment } from '../../services/articleCommentService';
+import {  likeComment, deleteComment } from '../../services/articleCommentService';
 import { useStateContext } from '../../contexts/ContextProvider';
 import { FaHeart, FaRegHeart, FaTrash } from 'react-icons/fa';
 import { info_toast, error_toast, sucess_toast } from '@/utils/toastNotification';
 import PropTypes from 'prop-types';
 import './Comments.css';
 
-const Comments = ({ articleId }) => {
-  const [comments, setComments] = useState([]);
+const Comments = ({ articleId, comments: initialComments = [] }) => {
+  const [comments, setComments] = useState(initialComments);
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { userInfo } = useStateContext();
 
   useEffect(() => {
-    const fetchComments = async () => {
-      setIsLoading(true);
-      try {
-        const response = await getCommentsByArticleId(articleId);
-        if (response && response.data) {
-          setComments(response.data);
-        } else if (Array.isArray(response)) {
-          setComments(response);
-        } else {
-          setComments([]);
-        }
-      } catch (error) {
-        console.error('Error fetching comments:', error);
-        error_toast("Failed to load comments.");
-        setComments([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (articleId) {
-      fetchComments();
+    // Update comments when initialComments prop changes
+    if (initialComments && initialComments.length > 0) {
+      setComments(initialComments);
     }
-  }, [articleId]);
+  }, [initialComments]);
 
   const handleAddComment = async (e) => {
     e.preventDefault();
@@ -50,14 +31,17 @@ const Comments = ({ articleId }) => {
     }
 
     setIsSubmitting(true);
+
     try {
       const response = await addArticleComment(articleId, { content: newComment });
       if (response.success) {
+        // Add the new comment to the list with user details
         const addedCommentWithUserDetails = {
           ...response.data,
           user: {
-            id: userInfo.id,
+            _id: userInfo.id,
             username: userInfo.username,
+            email: userInfo.email,
             imagepic: userInfo.imagepic
           }
         };
@@ -84,12 +68,13 @@ const Comments = ({ articleId }) => {
     try {
       const response = await likeComment(commentId);
       if (response && response.success) {
+        // Update the comments state with the updated likes
         setComments(prevComments =>
           prevComments.map(comment =>
             comment._id === commentId ? { ...comment, likes: response.data.likes } : comment
           )
         );
-        sucess_toast(response.message);
+        sucess_toast(response.message || "Comment liked successfully");
       } else {
         error_toast(response.message || "Failed to like comment");
       }
@@ -100,21 +85,27 @@ const Comments = ({ articleId }) => {
   };
 
   const handleDeleteComment = async (commentId) => {
-    if (!userInfo || !userInfo.id) return;
+    if (!userInfo || !userInfo.id) {
+      info_toast("Please login to delete comments");
+      return;
+    }
 
-    try {
-      const response = await deleteComment(commentId);
-      if (response && response.success) {
-        setComments(prevComments =>
-          prevComments.filter(comment => comment._id !== commentId)
-        );
-        sucess_toast(response.message);
-      } else {
-        error_toast(response.message || "Failed to delete comment");
+    if (window.confirm('Are you sure you want to delete this comment?')) {
+      try {
+        const response = await deleteComment(commentId);
+        if (response && response.success) {
+          // Remove the deleted comment from state
+          setComments(prevComments =>
+            prevComments.filter(comment => comment._id !== commentId)
+          );
+          sucess_toast("Comment deleted successfully");
+        } else {
+          error_toast(response.message || "Failed to delete comment");
+        }
+      } catch (error) {
+        error_toast("Failed to delete comment");
+        console.error('Error deleting comment:', error);
       }
-    } catch (error) {
-      error_toast("Failed to delete comment");
-      console.error('Error deleting comment:', error);
     }
   };
 
@@ -123,19 +114,37 @@ const Comments = ({ articleId }) => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  // Get URL for image
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    // Remove /api from the end of the URL if it exists
+    const baseUrl = import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '');
+    
+    // If path already starts with http or https, return it as is
+    if (path.startsWith('http')) return path;
+    
+    // Ensure path starts with /
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${baseUrl}${normalizedPath}`;
+  };
+
   return (
     <div className="comments-section">
-      <h4>Comments ({comments.length})</h4>
+      <h4 className="comments-title">Comments ({comments.length})</h4>
       {userInfo && (
         <form onSubmit={handleAddComment} className="comment-form">
           <textarea
+            className="comment-input"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Add your comment..."
-            rows={3}
             disabled={isSubmitting}
           />
-          <button type="submit" disabled={isSubmitting || !newComment.trim()}>
+          <button 
+            type="submit" 
+            className="comment-submit-btn"
+            disabled={isSubmitting || !newComment.trim()}
+          >
             {isSubmitting ? 'Submitting...' : 'Post Comment'}
           </button>
         </form>
@@ -143,45 +152,50 @@ const Comments = ({ articleId }) => {
       {!userInfo && <p>Please <a href="/login">login</a> to comment.</p>}
 
       {isLoading ? (
-        <p>Loading comments...</p>
+        <p className="comments-loading">Loading comments...</p>
       ) : comments.length > 0 ? (
         <ul className="comments-list">
           {comments.map(comment => (
             <li key={comment._id} className="comment-item">
-              <div className="comment-author">
+              <div className="comment-avatar">
                 <img
-                  src={comment.user?.imagepic || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user?.username || 'User')}&background=random`}
+                  src={getImageUrl(comment.user?.imagepic) || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user?.username || 'User')}&background=random`}
                   alt={comment.user?.username || 'User'}
-                  className="comment-author-image"
                 />
-                <strong>{comment.user?.username || 'Anonymous User'}</strong>
-                <span className="comment-date">{formatDate(comment.createdAt)}</span>
               </div>
-              <p className="comment-content">{comment.content}</p>
-              <div className="comment-actions">
-                <button onClick={() => handleLikeComment(comment._id)} className="comment-like-btn">
-                  {comment.likes && userInfo && comment.likes.includes(userInfo.id) ? <FaHeart /> : <FaRegHeart />}
-                  {comment.likes ? comment.likes.length : 0}
-                </button>
-                {userInfo && (userInfo.id === comment.user?._id || userInfo.role === 'admin') && (
-                  <button onClick={() => handleDeleteComment(comment._id)} className="comment-delete-btn">
-                    <FaTrash />
+              <div className="comment-content">
+                <div className="comment-header">
+                  <h5 className="comment-author">{comment.user?.username || 'Anonymous User'}</h5>
+                  <span className="comment-date">{formatDate(comment.createdAt)}</span>
+                </div>
+                <p className="comment-text">{comment.content}</p>
+                <div className="comment-actions">
+                  <button onClick={() => handleLikeComment(comment._id)} className="comment-like-btn">
+                    {comment.likes && userInfo && comment.likes.some(like => like === userInfo.id || like._id === userInfo.id) ? 
+                      <FaHeart /> : <FaRegHeart />}
+                    {comment.likes ? comment.likes.length : 0}
                   </button>
-                )}
+                  {userInfo && (userInfo.id === comment.user?._id || userInfo.role === 'admin') && (
+                    <button onClick={() => handleDeleteComment(comment._id)} className="comment-delete-btn">
+                      <FaTrash />
+                    </button>
+                  )}
+                </div>
               </div>
             </li>
           ))}
         </ul>
       ) : (
-        <p>No comments yet. Be the first to comment!</p>
+        <p className="comments-empty">No comments yet. Be the first to comment!</p>
       )}
     </div>
   );
 };
 
-// Add PropTypes validation
+// Update PropTypes validation
 Comments.propTypes = {
   articleId: PropTypes.string.isRequired,
+  comments: PropTypes.array
 };
 
 export default Comments;

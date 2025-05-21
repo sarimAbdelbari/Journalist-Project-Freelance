@@ -4,7 +4,7 @@ import './ArticleCard.css';
 
 function ArticleCard({ article }) {
 
-   console.log("article" ,article)
+
 
   const [isHovered, setIsHovered] = useState(false);
   
@@ -19,12 +19,16 @@ function ArticleCard({ article }) {
   // Construct image URL, assuming VITE_API_URL is available like in Article.jsx
   // If mediaUrl is already a full URL, you might not need this.
   const imageUrl = article.mediaUrl 
-    ? `${import.meta.env.VITE_API_URL.replace('/api','')}/${article.mediaUrl}` 
+    ? `${import.meta.env.VITE_API_URL.replace('/api','')}${article.mediaUrl}` 
     : 'default-placeholder-image.jpg'; // Provide a fallback image
 
-  const authorImageUrl = article.author?.imagepic 
-    ? `${import.meta.env.VITE_API_URL.replace('/api','')}/${article.author.imagepic}` 
-    : `https://ui-avatars.com/api/?name=${encodeURIComponent(article.author?.username || 'A N')}&background=random`;
+    const authorImageUrl = article.author.imagepic 
+      ? `${import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')}${article.author.imagepic}` 
+      : `https://ui-avatars.com/api/?name=${encodeURIComponent(article.author?.username || 'A N')}&background=random`;
+
+
+
+
 
   return (
     <Link to={`/article/${article._id}`} className="article-card-link">

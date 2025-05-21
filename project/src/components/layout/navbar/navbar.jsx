@@ -66,14 +66,7 @@ const isLoggedIn = (obj) => obj && Object.keys(obj).length > 0;
     return location.pathname === path ? 'active' : '';
   };
 
-// Add this to navbar.jsx, before the return statement
-useEffect(() => {
-  console.log('Navbar auth state:', {
-    userInfo,
-    isUserLoggedIn: isLoggedIn(userInfo),
-    token: Cookies.get('token')
-  });
-}, [userInfo]);
+
 
   // Get appropriate navigation links based on user role or guest status
   const getNavLinks = () => {

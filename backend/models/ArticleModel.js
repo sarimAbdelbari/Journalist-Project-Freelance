@@ -40,10 +40,10 @@ const articleSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
-    comments: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment'
-    }],
+  comments: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Comments'  // Changed to match the model name exactly
+}],
     status: {
         type: String,
         enum: ['pending', 'approved','denied'],

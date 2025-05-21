@@ -44,7 +44,7 @@ export function useAuth() {
     };
     
     checkAuth();
-  }, [setUserInfo]);
+  }, []);
   
   return { isAuthenticated, isLoading };
 }

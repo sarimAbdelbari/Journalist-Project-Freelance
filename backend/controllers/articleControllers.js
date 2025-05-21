@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Article = require('../models/ArticleModel');
 const Comment = require('../models/CommentsModel');
 
@@ -7,6 +8,7 @@ const createArticle = async (req, res) => {
         const { title, content, category, tags } = req.body;
         const author = req.user.id;
 
+        console.log("title" ,title)
         let mediaType = 'none';
         let mediaUrl = null;
 
@@ -116,12 +118,44 @@ const getArticles = async (req, res) => {
     }
 };
 
+const getFavArticles = async (req, res) => {
+    try {
+        // Get the current user ID
+        const userId = req.user.id;
+        
+        // Find all articles where the current user's ID is in the likes array
+        // Using string comparison which is more reliable
+        const favoriteArticles = await Article.find({ 
+            // Find articles where the likes array contains the userId string
+            likes: userId 
+        })
+        .populate('author', 'username email imagepic')
+        .sort({ createdAt: -1 });
+        
+       
+        
+        res.status(200).json({
+            success: true,
+            count: favoriteArticles.length,
+            data: favoriteArticles
+        });
+    } catch (error) {
+        console.error('Error in getFavArticles:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch favorite articles',
+            error: error.message
+        });
+    }
+};
+      
+
+
+
 const getArticlesByUser = async (req, res) => {
     try {
         const articles = await Article.find({ author: req.user.id })
-            .populate('author', 'name email')
-            .populate('comments')
-            .populate('likes', 'name email')
+            .populate('author', 'name email imagepic')
             .sort({ createdAt: -1 });
         
         res.status(200).json({
@@ -139,22 +173,33 @@ const getArticlesByUser = async (req, res) => {
 };
 
 
-// Get single article
 const getArticleById = async (req, res) => {
     try {
-        const article = await Article.findOne({ 
-            _id: req.params.id,
-            status: 'approved'
-        })
-            .populate('author', 'name email')
+        const id = req.params.id;
+    
+        
+        // Check for valid MongoDB ID format
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid article ID format'
+            });
+        }
+
+        const article = await Article.findById(req.params.id)
+            .populate('author', 'username email imagepic') // Include all fields you're using in frontend
             .populate({
                 path: 'comments',
+                model: 'Comments',  // Explicitly specify the model name 
                 populate: {
                     path: 'user',
-                    select: 'name email'
+                    model: 'User',
+                    select: 'email username imagepic'
                 }
             })
-            .populate('likes', 'name email');
+            .populate('likes', 'username email imagepic');
+
+
 
         if (!article) {
             return res.status(404).json({
@@ -325,6 +370,7 @@ const deleteArticle = async (req, res) => {
 module.exports = {
     createArticle,
     getArticles,
+    getFavArticles,
     getArticleById,
     getArticlesByUser,
     getArticlesByCategory,

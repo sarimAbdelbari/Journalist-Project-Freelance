@@ -146,6 +146,8 @@ function CreateArticle() {
 
     try {
       // Make API call with FormData
+     console.log("Submitting article data:", articleFormData);
+
       await axios.post("/articles", articleFormData, {
         headers: {
           // Axios might set this automatically for FormData, but explicitly is safer

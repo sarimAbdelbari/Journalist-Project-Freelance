@@ -11,6 +11,27 @@ export const getArticles = async () => {
   }
 };
 
+
+export const getFavArticles = async () => {
+  try {
+    const response = await axios.get('/articles/favorites');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching favorite articles:', error);
+    throw error;
+  }
+}
+
+export const getMyArticles = async () => {
+  try {
+    const response = await axios.get('/articles/my-articles');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching my articles:', error);
+    throw error;
+  }
+}
+
 // Get article by ID
 export const getArticleById = async (id) => {
   try {
@@ -88,3 +109,5 @@ export const addComment = async (id, commentData) => {
     throw error;
   }
 };
+
+

@@ -1,0 +1,113 @@
+.favorite-header {
+  margin-bottom: var(--space-8);
+  text-align: center;
+}
+
+.favorite-header h3 {
+  margin-bottom: var(--space-2);
+  color: var(--color-neutral-900);
+}
+
+.favorite-header p {
+  color: var(--color-neutral-600);
+  max-width: 600px;
+  margin: 0 auto var(--space-6);
+}
+.favorite-padding {
+  margin: 15px 0;
+}
+.create-article-section {
+  margin-bottom: var(--space-8);
+}
+
+.search-filters {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.search-container {
+  margin-bottom: var(--space-4);
+}
+
+.search-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-neutral-300);
+  font-size: 1rem;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.search-input:focus {
+  border-color: var(--color-primary-400);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+.category-button {
+  background-color: var(--color-neutral-100);
+  color: var(--color-neutral-700);
+  border: 1px solid var(--color-neutral-200);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.category-button:hover {
+  background-color: var(--color-neutral-200);
+}
+
+.category-button.active {
+  background-color: var(--color-primary-500);
+  color: white;
+  border-color: var(--color-primary-500);
+}
+
+.articles-container {
+  margin-bottom: var(--space-8);
+}
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .articles-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .articles-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.no-results {
+  text-align: center;
+  padding: var(--space-8) 0;
+}
+
+.no-results p {
+  margin-bottom: var(--space-4);
+  color: var(--color-neutral-600);
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  font-size: 1.125rem;
+  color: var(--color-neutral-600);
+}

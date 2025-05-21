@@ -113,6 +113,7 @@ function App() {
         {/* Public routes - accessible to everyone */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+      
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/article/:id" element={<Article />} />
@@ -129,6 +130,7 @@ function App() {
           <Route path="/article/create-article" element={<ArticleCreate />} />
           <Route path="/my-articles" element={<MyArticles />} /> {/* Add this component */}
           <Route path="/profile" element={<UserProfile />} /> {/* Add this component */}
+          <Route path="/favorites" element={<Favorites />} /> {/* Add this component */}
           {/* <Route path="/journalist" element={<JournalistProfile />} /> */}
         </Route>
 
