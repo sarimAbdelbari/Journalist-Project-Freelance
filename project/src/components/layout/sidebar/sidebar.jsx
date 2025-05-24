@@ -2,7 +2,9 @@ import  { useState, useRef, useEffect  } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import logo from '@/assets/logoDark.png';
 import './sidebar.css';
-import { FaUser, FaUserTie, FaNewspaper, FaTachometerAlt ,FaComments } from 'react-icons/fa';
+import { FaUser,
+  //  FaUserTie,FaTachometerAlt,
+    FaNewspaper,  FaComments } from 'react-icons/fa';
 import { useStateContext } from '@/contexts/ContextProvider';
 import Cookies from 'js-cookie';
 
@@ -37,18 +39,15 @@ const Sidebar = ({children}) => {
           <img src={logo} alt="Feather Logo" />
         </div>
         <nav className="sidebar-nav">
-          <NavLink to="/dashboard" className="sidebar-link">
+          {/* <NavLink to="/dashboard" className="sidebar-link">
             <FaTachometerAlt className="sidebar-icon" />
             <span>Dashboard</span>
-          </NavLink>
+          </NavLink> */}
           <NavLink to="/dashboard/users" className="sidebar-link">
             <FaUser className="sidebar-icon" />
             <span>Users</span>
           </NavLink>
-          <NavLink to="/dashboard/journaliste" className="sidebar-link">
-            <FaUserTie className="sidebar-icon" />
-            <span>Journalists</span>
-          </NavLink>
+
           <NavLink to="/dashboard/articles" className="sidebar-link">
             <FaNewspaper className="sidebar-icon" />
             <span>Articles</span>

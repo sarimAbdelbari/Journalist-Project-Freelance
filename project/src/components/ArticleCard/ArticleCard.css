@@ -10,6 +10,9 @@
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  height: 100%; /* Ensure cards are same height in a grid */
+  display: flex;
+  flex-direction: column;
 }
 
 .article-card:hover {
@@ -21,12 +24,17 @@
   position: relative;
   overflow: hidden;
   aspect-ratio: 16 / 9;
+  background-color: var(--color-neutral-200); /* Background for images that don't fully cover */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .article-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* This maintains aspect ratio while covering container */
+  object-position: center; /* Centers the image */
   transition: transform var(--transition-normal);
 }
 
@@ -45,10 +53,14 @@
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: capitalize;
+  z-index: 1; /* Ensure it appears above the image */
 }
 
 .article-content {
   padding: var(--space-4);
+  flex-grow: 1; /* Allow content to expand to fill card height */
+  display: flex;
+  flex-direction: column;
 }
 
 .article-title {
@@ -68,12 +80,14 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  flex-grow: 1; /* Allow excerpt to grow and push meta to bottom */
 }
 
 .article-meta {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  margin-top: 10px; /* Push meta information to bottom of card */
 }
 
 .author-info {
@@ -87,12 +101,17 @@
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
+  background-color: var(--color-neutral-200); /* Background for images that don't load */
 }
 
 .author-name {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-neutral-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Prevent long author names from breaking layout */
+  max-width: 150px; /* Limit width of author name */
 }
 
 .article-details {
@@ -101,6 +120,7 @@
   gap: var(--space-3);
   font-size: 0.75rem;
   color: var(--color-neutral-500);
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
 
 .article-date,
@@ -109,10 +129,12 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  white-space: nowrap; /* Keep these items from breaking */
 }
 
 .article-likes {
   color: var(--color-accent-500);
+  margin-left: auto; /* Push likes to right */
 }
 
 @media (min-width: 640px) {
@@ -127,4 +149,22 @@
   .article-excerpt {
     font-size: 1rem;
   }
+}
+
+/* Fix for broken image paths */
+.article-image[src*="undefined"],
+.article-image[src=""],
+.article-image:not([src]) {
+  opacity: 0.5;
+}
+
+/* Fix for multiple categories */
+.article-categories {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  z-index: 1;
 }

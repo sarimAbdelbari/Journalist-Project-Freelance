@@ -1,180 +1,169 @@
 import { useState, useEffect } from 'react';
-import {
+import { 
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
   Button,
+  IconButton,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   FormControlLabel,
   Switch,
-  Box,
-  IconButton,
-  Avatar
+  Box
 } from '@mui/material';
-import { MdClose } from 'react-icons/md';
-import '@/pages/admin/users/users.css';
-
+import { FaTimes } from 'react-icons/fa';
 
 export default function UpdateUserDialog({ open, onClose, onSave, user }) {
-  const [formData, setFormData] = useState({
+  const [userData, setUserData] = useState({
     id: '',
     username: '',
     email: '',
-    role: 'abonné',
+    role: '',
+    bio: '',
     active: true,
-    imagepic: '',
-    favorites: []
   });
   
   const [errors, setErrors] = useState({});
   
-  // Initialize form data when user prop changes
   useEffect(() => {
     if (user) {
-      setFormData({
+      setUserData({
         id: user.id,
         username: user.username,
         email: user.email,
         role: user.role,
+        bio: user.bio || '',
         active: user.active,
-        imagepic: user.imagepic || '',
-        favorites: user.favorites || []
       });
     }
   }, [user]);
   
   const validateForm = () => {
-    const newErrors = {};
+    let tempErrors = {};
+    tempErrors.username = userData.username ? "" : "Username is required";
+    tempErrors.email = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(userData.email) ? 
+      "" : "Email is not valid";
     
-    if (!formData.username) newErrors.username = 'Username is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    setErrors(tempErrors);
     
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return Object.values(tempErrors).every(x => x === "");
   };
   
-  const handleChange = (e) => {
-    const { name, value, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'active' ? checked : value
-    }));
-    
-    // Clear error on field change
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: null }));
-    }
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserData({
+      ...userData,
+      [name]: value
+    });
+  };
+  
+  const handleSwitchChange = (e) => {
+    setUserData({
+      ...userData,
+      [e.target.name]: e.target.checked
+    });
   };
   
   const handleSubmit = () => {
     if (validateForm()) {
-      onSave(formData);
+      onSave(userData);
     }
   };
-  
+
   return (
     <Dialog 
       open={open} 
       onClose={onClose}
-      fullWidth
       maxWidth="sm"
+      fullWidth
       className="user-dialog"
     >
       <DialogTitle className="dialog-title">
-        Update User
-        <IconButton 
-          onClick={onClose}
-          className="close-button"
-        >
-          <MdClose />
+        Update User: {user?.username}
+        <IconButton onClick={onClose} className="close-button">
+          <FaTimes />
         </IconButton>
       </DialogTitle>
+      
       <DialogContent dividers>
         <Box className="form-container">
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-            <Avatar 
-              src={formData.imagepic} 
-              alt={formData.username}
-              sx={{ width: 80, height: 80 }}
-              className="user-avatar-large"
-            >
-              {formData.username.charAt(0).toUpperCase()}
-            </Avatar>
-          </Box>
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Username"
+            name="username"
+            value={userData.username}
+            onChange={handleInputChange}
+            error={Boolean(errors.username)}
+            helperText={errors.username}
+          />
           
           <TextField
-            name="username"
-            label="Username"
-            value={formData.username}
-            onChange={handleChange}
             fullWidth
             margin="normal"
-            error={!!errors.username}
-            helperText={errors.username}
-            required
-          />
-          <TextField
-            name="email"
             label="Email"
+            name="email"
             type="email"
-            value={formData.email}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            error={!!errors.email}
+            value={userData.email}
+            onChange={handleInputChange}
+            error={Boolean(errors.email)}
             helperText={errors.email}
-            required
           />
+          
           <FormControl fullWidth margin="normal">
             <InputLabel>Role</InputLabel>
             <Select
               name="role"
-              value={formData.role}
-              onChange={handleChange}
+              value={userData.role}
               label="Role"
+              onChange={handleInputChange}
             >
               <MenuItem value="abonné">Abonné</MenuItem>
               <MenuItem value="journaliste">Journaliste</MenuItem>
               <MenuItem value="admin">Admin</MenuItem>
             </Select>
           </FormControl>
+          
           <TextField
-            name="imagepic"
-            label="Profile Image URL"
-            value={formData.imagepic}
-            onChange={handleChange}
             fullWidth
             margin="normal"
-            placeholder="https://example.com/profile.jpg (optional)"
+            label="Bio"
+            name="bio"
+            multiline
+            rows={3}
+            value={userData.bio}
+            onChange={handleInputChange}
           />
+          
           <FormControlLabel
             control={
               <Switch
+                checked={userData.active}
+                onChange={handleSwitchChange}
                 name="active"
-                checked={formData.active}
-                onChange={handleChange}
                 color="primary"
               />
             }
-            label="Account Active"
-            className="active-switch"
+            label="Active Account"
+            sx={{ mt: 2 }}
           />
         </Box>
       </DialogContent>
+      
       <DialogActions className="dialog-actions">
-        <Button onClick={onClose} className="cancel-button">
+        <Button 
+          onClick={onClose} 
+          className="cancel-button"
+        >
           Cancel
         </Button>
         <Button 
           onClick={handleSubmit} 
           variant="contained" 
-          color="primary"
           className="save-button"
         >
           Update User

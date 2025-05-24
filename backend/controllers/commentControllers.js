@@ -2,6 +2,37 @@ const mongoose = require('mongoose');
 const Comment = require('../models/CommentsModel');
 const Article = require('../models/ArticleModel');
 
+
+
+
+const getAllComments = async (req, res) => {
+  try {
+    const comments = await Comment.find()
+      .populate('user', 'username email imagepic')
+      .populate({
+        path: 'article',
+        select: 'title _id',
+        populate: {
+          path: 'author',
+          select: 'username _id'
+        }
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: comments.length,
+      data: comments
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch comments',
+      error: error.message
+    });
+  }
+};
+
 // Get all comments for an article
 const getCommentsByArticleId = async (req, res) => {
   try {
@@ -109,6 +140,7 @@ const deleteComment = async (req, res) => {
 };
 
 module.exports = {
+  getAllComments ,
   getCommentsByArticleId,
   likeComment,
   deleteComment

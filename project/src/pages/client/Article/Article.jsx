@@ -128,13 +128,15 @@ function Article() {
         <Link to="/" className="back-link"><FaArrowLeft/> Back to Articles</Link>
         
         <header className="article-header">
+          <h3 className="article-title">{article.title}</h3>
+          <div className='article-subtitle'>
+
           <div className="article-meta-top">
             <span className="article-category">{Array.isArray(article.category) ? article.category.join(', ') : article.category}</span>
             <span className="article-date">{formatDate(article.createdAt)}</span>
             <span className="article-read-time"> <CiViewTimeline />{article.readTime}</span>
           </div>
           
-          <h1 className="article-title">{article.title}</h1>
           
           {article.author && (
             <div className="article-author">
@@ -153,6 +155,7 @@ function Article() {
               </div>
             </div>
           )}
+              </div>
         </header>
 
         {article.mediaUrl && (

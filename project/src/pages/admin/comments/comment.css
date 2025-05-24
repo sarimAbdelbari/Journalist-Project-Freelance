@@ -1,0 +1,285 @@
+.comments-container {
+  padding: 1.5rem;
+}
+
+/* Header */
+.comments-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.page-title-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.page-icon {
+  font-size: 1.75rem;
+  color: var(--color-primary-600);
+}
+
+.page-title {
+  color: var(--color-neutral-900);
+  font-weight: 600;
+}
+
+/* Stats card */
+.stats-card {
+  display: flex;
+  padding: 1rem;
+  justify-content: space-around;
+  background-color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-item {
+  text-align: center;
+  padding: 0.5rem 1.5rem;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: var(--color-primary-700);
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  color: var(--color-neutral-600);
+  font-size: 0.875rem;
+}
+
+/* Search and filter */
+.search-filter-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 250px;
+}
+
+.filter-select {
+  min-width: 180px;
+}
+
+/* Results summary */
+.results-summary {
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.25rem;
+}
+
+/* Comments grid */
+.comments-grid {
+  margin-top: 1rem;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem 0;
+}
+
+/* No results */
+.no-results {
+  padding: 3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.clear-search-chip {
+  margin-top: 1rem;
+}
+
+/* Comment card styling */
+.comment-card {
+  background-color: white;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.comment-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.comment-content {
+  padding: 1.25rem;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.user-info {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--color-primary-100);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-weight: 600;
+  color: var(--color-neutral-800);
+  margin-bottom: 0.25rem;
+}
+
+.comment-meta {
+  display: flex;
+  gap: 1rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-neutral-500);
+}
+
+.meta-icon {
+  font-size: 0.75rem;
+}
+
+.delete-button {
+  color: var(--color-error-600);
+}
+
+.comment-body {
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+}
+
+.comment-text {
+  color: var(--color-neutral-800);
+  line-height: 1.5;
+}
+
+.comment-divider {
+  margin: 0.75rem 0;
+}
+
+.article-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.article-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-neutral-600);
+}
+
+.article-icon {
+  font-size: 0.875rem;
+  color: var(--color-primary-600);
+}
+
+.article-details {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--color-neutral-100);
+  border-radius: 4px;
+}
+
+.article-title {
+  flex: 1;
+  font-weight: 500;
+}
+
+.article-link {
+  color: var(--color-primary-600);
+  display: flex;
+  align-items: center;
+}
+
+.author-chip {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+  background-color: var(--color-neutral-100);
+}
+
+/* Delete dialog */
+.delete-dialog .dialog-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5rem;
+}
+
+.delete-dialog .close-button {
+  color: var(--color-neutral-500);
+}
+
+.delete-dialog .dialog-content {
+  text-align: center;
+  padding: 1rem 0.5rem;
+}
+
+.warning-icon-container {
+  margin-bottom: 1rem;
+}
+
+.warning-icon {
+  font-size: 3rem;
+  color: var(--color-warning-500);
+}
+
+.confirm-title {
+  margin-bottom: 1rem;
+  color: var(--color-neutral-900);
+}
+
+.confirm-message {
+  color: var(--color-neutral-600);
+}
+
+.dialog-actions {
+  padding: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .comments-header {
+    flex-direction: column;
+  }
+  
+  .page-title-container {
+    margin-bottom: 1rem;
+  }
+  
+  .stat-item {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .comment-content {
+    padding: 1rem;
+  }
+}

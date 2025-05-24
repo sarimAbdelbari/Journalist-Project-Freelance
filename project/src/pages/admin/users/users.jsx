@@ -1,8 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  DataGrid, 
-  GridToolbarFilterButton,
-  GridToolbarExport
+  DataGrid
 } from '@mui/x-data-grid';
 import { 
   Box, 
@@ -20,169 +18,162 @@ import CreateUserDialog from '@/components/admin/users/CreateUserDialog';
 import UpdateUserDialog from '@/components/admin/users/UpdateUserDialog';
 import DeleteUserDialog from '@/components/admin/users/DeleteUserDialog';
 import ViewUserDialog from '@/components/admin/users/ViewUserDialog';
+import { getAllUsers, createUser, updateUser, deleteUser } from '@/services/userService';
+import { error_toast, sucess_toast } from '@/utils/toastNotification';
+import { useStateContext } from '@/contexts/ContextProvider';
+import { LoadingPage } from '../../../components/layout/loading/LoadingPage';
 
-// Dummy user data based on the model
-const dummyUsers = [
-  {
-    id: '1',
-    username: 'admin_user',
-    email: 'admin@example.com',
-    role: 'admin',
-    favorites: ['article1', 'article2'],
-    imagepic: 'https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff',
-    active: true,
-    createdAt: '2023-05-15T09:30:00.000Z',
-    updatedAt: '2023-07-10T14:20:00.000Z'
-  },
-  {
-    id: '2',
-    username: 'john_journalist',
-    email: 'john@example.com',
-    role: 'journaliste',
-    favorites: ['article3'],
-    imagepic: 'https://ui-avatars.com/api/?name=John+Journalist&background=2E7D32&color=fff',
-    active: true,
-    createdAt: '2023-06-01T10:15:00.000Z',
-    updatedAt: '2023-06-01T10:15:00.000Z'
-  },
-  {
-    id: '3',
-    username: 'sarah_writer',
-    email: 'sarah@example.com',
-    role: 'journaliste',
-    favorites: ['article1', 'article4', 'article5'],
-    imagepic: 'https://ui-avatars.com/api/?name=Sarah+Writer&background=C2185B&color=fff',
-    active: true,
-    createdAt: '2023-06-10T08:45:00.000Z',
-    updatedAt: '2023-07-05T11:30:00.000Z'
-  },
-  {
-    id: '4',
-    username: 'alex_subscriber',
-    email: 'alex@example.com',
-    role: 'abonné',
-    favorites: ['article2', 'article5'],
-    imagepic: null,
-    active: true,
-    createdAt: '2023-06-15T14:20:00.000Z',
-    updatedAt: '2023-06-15T14:20:00.000Z'
-  },
-  {
-    id: '5',
-    username: 'maria_reader',
-    email: 'maria@example.com',
-    role: 'abonné',
-    favorites: [],
-    imagepic: 'https://ui-avatars.com/api/?name=Maria+Reader&background=F57C00&color=fff',
-    active: false,
-    createdAt: '2023-06-20T09:10:00.000Z',
-    updatedAt: '2023-07-12T10:05:00.000Z'
-  },
-  {
-    id: '6',
-    username: 'david_editor',
-    email: 'david@example.com',
-    role: 'journaliste',
-    favorites: ['article3', 'article6'],
-    imagepic: 'https://ui-avatars.com/api/?name=David+Editor&background=7B1FA2&color=fff',
-    active: true,
-    createdAt: '2023-07-01T11:25:00.000Z',
-    updatedAt: '2023-07-01T11:25:00.000Z'
-  },
-  {
-    id: '7',
-    username: 'lisa_subscriber',
-    email: 'lisa@example.com',
-    role: 'abonné',
-    favorites: ['article1'],
-    imagepic: null,
-    active: true,
-    createdAt: '2023-07-05T13:40:00.000Z',
-    updatedAt: '2023-07-05T13:40:00.000Z'
-  },
-  {
-    id: '8',
-    username: 'michael_admin',
-    email: 'michael@example.com',
-    role: 'admin',
-    favorites: [],
-    imagepic: 'https://ui-avatars.com/api/?name=Michael+Admin&background=0D47A1&color=fff',
-    active: true,
-    createdAt: '2023-07-10T08:30:00.000Z',
-    updatedAt: '2023-07-10T08:30:00.000Z'
-  },
-  {
-    id: '9',
-    username: 'emma_reader',
-    email: 'emma@example.com',
-    role: 'abonné',
-    favorites: ['article2', 'article4'],
-    imagepic: 'https://ui-avatars.com/api/?name=Emma+Reader&background=E53935&color=fff',
-    active: true,
-    createdAt: '2023-07-15T10:50:00.000Z',
-    updatedAt: '2023-07-15T10:50:00.000Z'
-  },
-  {
-    id: '10',
-    username: 'robert_journalist',
-    email: 'robert@example.com',
-    role: 'journaliste',
-    favorites: ['article5', 'article6'],
-    imagepic: null,
-    active: false,
-    createdAt: '2023-07-20T09:15:00.000Z',
-    updatedAt: '2023-07-25T14:10:00.000Z'
-  }
-];
 
-function CustomToolbar() {
-  return (
-    <Box className="users-toolbar-container">
-      <GridToolbarFilterButton />
-      <GridToolbarExport />
-    </Box>
-  );
-}
 
 export default function Users() {
-  const [users, setUsers] = useState(dummyUsers);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const { userInfo } = useStateContext();
   
-  // Generate a new unique ID
-  const generateId = () => {
-    return (Math.max(...users.map(user => parseInt(user.id))) + 1).toString();
-  };
+  // Fetch users when component mounts
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllUsers();
+        if (response && response.users) {
+          // Map backend data to match our frontend structure
+          const formattedUsers = response.users.map(user => ({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            bio: user.bio,
+            favorites: user.favorites || [],
+            imagepic: user.imagepic,
+            active: user.active,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+          }));
+        
+          
+          setUsers(formattedUsers);
+        } else {
+          error_toast('Failed to load users data');
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        error_toast('Error loading users. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
   
   // Handle create user
-  const handleCreateUser = (userData) => {
-    const newUser = {
-      ...userData,
-      id: generateId(),
-      favorites: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    setUsers([...users, newUser]);
-    setCreateDialogOpen(false);
+  const handleCreateUser = async (userData) => {
+    try {
+      const response = await createUser(userData);
+      
+      if (response && response.user) {
+        const newUser = {
+          id: response.user.id,
+          username: response.user.username,
+          email: response.user.email,
+          role: response.user.role,
+          bio: response.user.bio,
+          favorites: response.user.favorites || [],
+          imagepic: response.user.imagepic,
+          active: response.user.active,
+          createdAt: response.user.createdAt,
+          updatedAt: response.user.updatedAt
+        };
+        
+
+        setUsers(prevUsers => [...prevUsers, newUser]);
+        setCreateDialogOpen(false);
+        sucess_toast('User created successfully');
+      } else {
+        error_toast('Failed to create user');
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+      error_toast(error.response?.data?.message || 'Error creating user');
+    }
   };
   
   // Handle update user
-  const handleUpdateUser = (userData) => {
-    setUsers(users.map(user => 
-      user.id === userData.id ? 
-      {...userData, updatedAt: new Date().toISOString()} : user
-    ));
-    setUpdateDialogOpen(false);
+  const handleUpdateUser = async (userData) => {
+    try {
+      const response = await updateUser(userData.id, userData);
+      
+      if (response && response.user) {
+        setUsers(prevUsers => prevUsers.map(user => 
+          user.id === userData.id ? {
+            ...response.user,
+            id: response.user.id
+          } : user
+        ));
+        setUpdateDialogOpen(false);
+        sucess_toast('User updated successfully');
+      } else {
+        error_toast('Failed to update user');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      error_toast(error.response?.data?.message || 'Error updating user');
+    }
   };
   
   // Handle delete user
-  const handleDeleteUser = () => {
-    setUsers(users.filter(user => user.id !== selectedUser.id));
-    setDeleteDialogOpen(false);
+  const handleDeleteUser = async () => {
+    try {
+      // Check if user is trying to delete themselves
+      if (selectedUser.id === userInfo.id) {
+        error_toast("You cannot delete your own account");
+        return;
+      }
+      
+      const response = await deleteUser(selectedUser.id);
+      
+      if (response) {
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedUser.id));
+        setDeleteDialogOpen(false);
+        sucess_toast('User deleted successfully');
+      } else {
+        error_toast('Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      error_toast(error.response?.data?.message || 'Error deleting user');
+    }
+  };
+  
+  // Format image URL
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    
+    if (path.startsWith('http')) return path;
+    
+    const baseUrl = import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '');
+    return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
+  
+  // A more robust date formatter that ensures ISO format compatibility
+  const safeDateFormatter = (dateStr) => {
+    if (!dateStr) return '—';
+    
+    try {
+      // For ISO format strings, this should work reliably
+      const date = new Date(dateStr);
+
+      return date.toLocaleDateString();
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return '—';
+    }
   };
   
   // Define columns
@@ -195,7 +186,7 @@ export default function Users() {
       renderCell: (params) => (
         <div className="username-cell">
           <Avatar 
-            src={params.row.imagepic} 
+            src={params.row.imagepic ? getImageUrl(params.row.imagepic) : null} 
             alt={params.row.username}
             className="user-avatar"
           >
@@ -257,7 +248,7 @@ export default function Users() {
       headerName: 'Created At', 
       width: 180,
       valueFormatter: (params) => {
-        return new Date(params.value).toLocaleString();
+        safeDateFormatter(params?.value)
       }
     },
     { 
@@ -265,45 +256,59 @@ export default function Users() {
       headerName: 'Actions', 
       width: 150,
       sortable: false,
-      renderCell: (params) => (
-        <div className="action-buttons">
-          <Tooltip title="View">
-            <IconButton 
-              onClick={() => {
-                setSelectedUser(params.row);
-                setViewDialogOpen(true);
-              }}
-              className="view-button"
-            >
-              <FaEye />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Edit">
-            <IconButton 
-              onClick={() => {
-                setSelectedUser(params.row);
-                setUpdateDialogOpen(true);
-              }}
-              className="edit-button"
-            >
-              <FaEdit />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <IconButton 
-              onClick={() => {
-                setSelectedUser(params.row);
-                setDeleteDialogOpen(true);
-              }}
-              className="delete-button"
-            >
-              <FaTrash />
-            </IconButton>
-          </Tooltip>
-        </div>
-      )
+      renderCell: (params) => {
+        // Prevent deleting own account
+        const isCurrentUser = params.row.id === userInfo?.id;
+        
+        return (
+          <div className="action-buttons">
+            <Tooltip title="View">
+              <IconButton 
+                onClick={() => {
+                  setSelectedUser(params.row);
+                  setViewDialogOpen(true);
+                }}
+                className="view-button"
+              >
+                <FaEye />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit">
+              <IconButton 
+                onClick={() => {
+                  setSelectedUser(params.row);
+                  setUpdateDialogOpen(true);
+                }}
+                className="edit-button"
+              >
+                <FaEdit />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={isCurrentUser ? "Cannot delete your own account" : "Delete"}>
+              <span> {/* Wrap in span to allow tooltip on disabled button */}
+                <IconButton 
+                  onClick={() => {
+                    setSelectedUser(params.row);
+                    setDeleteDialogOpen(true);
+                  }}
+                  className="delete-button"
+                  disabled={isCurrentUser}
+                >
+                  <FaTrash />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </div>
+        );
+      }
     },
   ];
+
+  if (loading) {
+    return (
+      <LoadingPage/>
+    );
+  }
 
   return (
     <div className="users-container">
@@ -390,9 +395,6 @@ export default function Users() {
           <DataGrid
             rows={users}
             columns={columns}
-            slots={{
-              toolbar: CustomToolbar,
-            }}
             initialState={{
               pagination: {
                 paginationModel: {
@@ -443,6 +445,7 @@ export default function Users() {
           open={viewDialogOpen} 
           onClose={() => setViewDialogOpen(false)}
           user={selectedUser}
+          getImageUrl={getImageUrl}
         />
       )}
     </div>

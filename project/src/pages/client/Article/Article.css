@@ -17,16 +17,27 @@
 }
 
 .article-header {
+  display: flex;
+  flex-direction: column;
   margin-bottom: var(--space-6);
 }
 
 .article-meta-top {
   display: flex;
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
   gap: var(--space-4);
   margin-bottom: var(--space-4);
 }
 
+.article-subtitle{
+  display: flex;
+  width: 100%; 
+  gap: 30px;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+}
 .article-category {
   background-color: var(--color-primary-500);
   color: white;

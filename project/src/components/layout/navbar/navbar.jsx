@@ -96,7 +96,7 @@ const isLoggedIn = (obj) => obj && Object.keys(obj).length > 0;
           <Link to="/" className={`nav-link ${isActive('/')}`}>
             <FaHome /> <span>Home</span>
           </Link>
-          <Link to="/favorites" className={`nav-link ${isActive('/favorites')}`}>
+           <Link to="/favorites" className={`nav-link ${isActive('/favorites')}`}>
             <FaStar /> <span>Favorites</span>
           </Link>
           <Link to="/journalists" className={`nav-link ${isActive('/journalists')}`}>

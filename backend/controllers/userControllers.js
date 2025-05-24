@@ -30,24 +30,28 @@ const getUserById = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({}, '-password'); // Exclude password field
+        const users = await User.find()
+            .select('-password')
+            .lean();
+        
+        // Transform MongoDB _id to id for frontend consistency
+        const transformedUsers = users.map(user => ({
+            ...user,
+            id: user._id.toString(),
+            favorites: user.favorites || [] // Ensure favorites is always an array
+        }));
+        
         res.status(200).json({
-            users: users.map(user => ({
-                id: user._id,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                bio: user.bio,
-                imagepic: user.imagepic,
-                active: user.active,
-                favorites: user.favorites,
-                createdAt: user.createdAt,
-                updatedAt: user.updatedAt
-            }))
+            success: true,
+            count: users.length,
+            users: transformedUsers
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch users',
+            error: error.message
+        });
     }
 }
 
@@ -129,12 +133,24 @@ const deleteUser = async (req, res) => {
     }
 }
 
-// Add update profile method for users to update their own profile
+// Modify the updateProfile function to handle socialLinks
 const updateProfile = async (req, res) => {
     try {
-        const userId = req.user.userId; // From auth middleware
+ 
+    
+    const userId = req.user.userId; // From auth middleware
         const { username, email, bio } = req.body;
         const avatarFile = req.file; // Get uploaded file if any
+        
+        // Parse socialLinks from form data
+        let socialLinks = {};
+        if (req.body.socialLinks) {
+            try {
+                socialLinks = JSON.parse(req.body.socialLinks);
+            } catch (err) {
+                console.error('Error parsing social links:', err);
+            }
+        }
 
         const user = await User.findById(userId);
         if (!user) {
@@ -144,7 +160,7 @@ const updateProfile = async (req, res) => {
         // Check if username is already taken by another user
         if (username && username !== user.username) {
             const existingUser = await User.findOne({ username });
-            if (existingUser) {
+            if (existingUser && existingUser._id.toString() !== userId) {
                 return res.status(400).json({ message: 'Username already exists' });
             }
             user.username = username;
@@ -153,7 +169,7 @@ const updateProfile = async (req, res) => {
         // Check if email is already taken by another user
         if (email && email !== user.email) {
             const existingEmail = await User.findOne({ email });
-            if (existingEmail) {
+            if (existingEmail && existingEmail._id.toString() !== userId) {
                 return res.status(400).json({ message: 'Email already exists' });
             }
             user.email = email;
@@ -162,6 +178,14 @@ const updateProfile = async (req, res) => {
         // Update bio
         if (bio !== undefined) {
             user.bio = bio;
+        }
+        
+        // Update social links
+        if (socialLinks) {
+            user.socialLinks = {
+                twitter: socialLinks.twitter || user.socialLinks?.twitter || '',
+                linkedin: socialLinks.linkedin || user.socialLinks?.linkedin || ''
+            };
         }
 
         // Update profile picture if provided
@@ -179,9 +203,12 @@ const updateProfile = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 bio: user.bio,
+                socialLinks: user.socialLinks,
                 imagepic: user.imagepic,
                 active: user.active,
-                favorites: user.favorites
+                favorites: user.favorites,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
             }
         });
     } catch (error) {

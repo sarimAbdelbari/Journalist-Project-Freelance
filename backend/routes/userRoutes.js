@@ -6,21 +6,22 @@ const {
     getUserById,
     getJournalists,
     updateUser, 
-    deleteUser 
+    deleteUser,
+    updateProfile
 } = require('../controllers/userControllers');
+const { uploadAvatar } = require('../middleware/uploadMiddleware');
 
-
-
+// General routes
 router.get('/', getAllUsers);
-router.get('/journalists',getJournalists);
-router.get('/:id',protect, authorize('admin'), getUserById);
+router.get('/journalists', getJournalists);
 
-// Protected routes
-// router.route('/:id')
-//     .put( updateUser)
-//     .delete(deleteUser);
-router.route('/:id')
-    .put(protect, updateUser)
-    .delete(protect, authorize('admin'), deleteUser);
+// Important: Put specific routes BEFORE parameterized routes
+// User profile update with avatar upload - THIS MUST COME BEFORE /:id routes
+router.put('/profile', protect, uploadAvatar, updateProfile);
+
+// Parameterized routes should come after specific routes
+router.get('/:id', protect, getUserById);
+router.put('/:id', protect, updateUser);
+router.delete('/:id', protect, authorize('admin'), deleteUser);
 
 module.exports = router;

@@ -18,6 +18,9 @@ import JournalistsList from '@/pages/client/Journalists/JournalistsList'
 import UserProfile from '@/pages/client/Profile/UserProfile'
 import Favorites from '@/pages/client/Favorites/Favorites'
 import MyArticles from '@/pages/client/MyArticles/MyArticles'
+import { LoadingPage } from './components/layout/loading/LoadingPage'
+import ArticlesTable from './pages/admin/articles/articles'
+import Comments from './pages/admin/comments/comment'
 
 // Public layout for both signed-in and unsigned visitors
 const MainLayout = () => {
@@ -29,12 +32,34 @@ const MainLayout = () => {
   );
 };
 
+
+
+
+// Add this new layout function
+const JournalistOrSubscriberLayout = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const { userInfo } = useStateContext();
+
+  if (isLoading) return <div><LoadingPage/></div>;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (userInfo.role !== "journaliste" && userInfo.role !== "abonné") 
+    return <Navigate to="/" replace />;
+
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  );
+};
+
+
 // Layout for journalist-specific features
 const JournalistLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const { userInfo } = useStateContext();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div><LoadingPage/></div>;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (userInfo.role !== "journaliste") return <Navigate to="/" replace />;
 
@@ -51,7 +76,7 @@ const AdminLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const { userInfo } = useStateContext();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div><LoadingPage/></div>;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (userInfo.role !== "admin") return <Navigate to="/" replace />;
 
@@ -62,28 +87,11 @@ const AdminLayout = () => {
   );
 };
 
-// Layout for subscriber-specific features
-const SubscriberLayout = () => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const { userInfo } = useStateContext();
-
-  if (isLoading) return <div>Loading...</div>;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (userInfo.role !== "abonné") return <Navigate to="/" replace />;
-
-  return (
-    <>
-      <Navbar />
-      <Outlet />
-    </>
-  );
-};
-
 // Layout for any authenticated user (regardless of role)
 const AuthenticatedLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div><LoadingPage/></div>;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   return (
@@ -125,27 +133,27 @@ function App() {
           <Route path="/profile" element={<UserProfile />} /> {/* Add this component */}
         </Route>
 
+       
+
         {/* Journalist-specific routes */}
         <Route element={<JournalistLayout />}>
           <Route path="/article/create-article" element={<ArticleCreate />} />
           <Route path="/my-articles" element={<MyArticles />} /> {/* Add this component */}
           <Route path="/profile" element={<UserProfile />} /> {/* Add this component */}
-          <Route path="/favorites" element={<Favorites />} /> {/* Add this component */}
           {/* <Route path="/journalist" element={<JournalistProfile />} /> */}
         </Route>
+<Route element={<JournalistOrSubscriberLayout />}>
+          <Route path="/profile" element={<UserProfile />} /> {/* Add this component */}
 
-        {/* Subscriber-specific routes */}
-        <Route element={<SubscriberLayout />}>
-          <Route path="/favorites" element={<Favorites />} /> {/* Add this component */}
-        </Route>
+  <Route path="/favorites" element={<Favorites />} />
+</Route>
 
         {/* Admin routes */}
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/users" element={<Users />} />
-          <Route path="/dashboard/journaliste" element={<Dashboard />} />
-          <Route path="/dashboard/articles" element={<Dashboard />} />
-          <Route path="/dashboard/comments" element={<Dashboard />} />
+          <Route path="/dashboard/articles" element={<ArticlesTable />} />
+          <Route path="/dashboard/comments" element={<Comments />} />
         </Route>
 
         {/* Fallback */}

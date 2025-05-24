@@ -110,4 +110,26 @@ export const addComment = async (id, commentData) => {
   }
 };
 
+// Get all articles (admin)
+export const getAllArticles = async () => {
+  try {
+    const response = await axios.get('/articles/all');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all articles:', error);
+    throw error;
+  }
+};
+
+// Update article status
+export const updateArticleStatus = async (id, status) => {
+  try {
+    const response = await axios.put(`/articles/${id}/status`, { status });
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating article status:`, error);
+    throw error;
+  }
+};
+
 

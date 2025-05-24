@@ -118,6 +118,26 @@ const getArticles = async (req, res) => {
     }
 };
 
+const getAllArticles = async (req, res) => {
+    try {
+        const articles = await Article.find()
+            .populate('author', 'username email imagepic')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: articles.length,
+            data: articles
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch articles',
+            error: error.message
+        });
+    }
+}
+
 const getFavArticles = async (req, res) => {
     try {
         // Get the current user ID
@@ -172,6 +192,58 @@ const getArticlesByUser = async (req, res) => {
     }
 };
 
+const getArticlesByIds = async (req, res) => {
+    try {
+        const { ids } = req.query;
+        
+        console.log('Getting articles by IDs. Query param:', ids);
+        
+        if (!ids) {
+            console.log('No article IDs provided');
+            return res.status(400).json({
+                success: false,
+                message: 'No article IDs provided'
+            });
+        }
+        
+        const articleIds = ids.split(',');
+        console.log('Article IDs after splitting:', articleIds);
+        
+        // Validate IDs are valid MongoDB ObjectIds
+        const validIds = articleIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+        console.log('Valid article IDs:', validIds);
+        
+        if (validIds.length === 0) {
+            console.log('No valid article IDs found');
+            return res.status(200).json({
+                success: true,
+                count: 0,
+                data: []
+            });
+        }
+        
+        const articles = await Article.find({ 
+            _id: { $in: validIds } 
+        })
+        .select('title _id')
+        .lean();
+        
+        console.log(`Found ${articles.length} articles`);
+        
+        res.status(200).json({
+            success: true,
+            count: articles.length,
+            data: articles
+        });
+    } catch (error) {
+        console.error('Error in getArticlesByIds:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch articles by IDs',
+            error: error.message
+        });
+    }
+};
 
 const getArticleById = async (req, res) => {
     try {
@@ -260,34 +332,67 @@ const getArticlesByCategory = async (req, res) => {
 // Add like to article
 const likeArticle = async (req, res) => {
     try {
-        const article = await Article.findById(req.params.id);
-
+        const articleId = req.params.id;
+        const userId = req.user.id;
+        
+        // Find the article
+        const article = await Article.findById(articleId);
         if (!article) {
             return res.status(404).json({
                 success: false,
                 message: 'Article not found'
             });
         }
-
-        // Check if already liked
-        if (article.likes.includes(req.user.id)) {
-            // Remove like
+        
+        // Find the user to update their favorites
+        const User = require('../models/UserModel');
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+        
+        let isLiked = false;
+        
+        // Check if already liked in article document
+        if (article.likes.includes(userId)) {
+            // Remove like from article
             article.likes = article.likes.filter(
-                like => like.toString() !== req.user.id
+                like => like.toString() !== userId
+            );
+            isLiked = false;
+            
+            // Also remove from user's favorites
+            user.favorites = user.favorites.filter(
+                fav => fav.toString() !== articleId
             );
         } else {
-            // Add like
-            article.likes.push(req.user.id);
+            // Add like to article
+            article.likes.push(userId);
+            isLiked = true;
+            
+            // Also add to user's favorites if not already there
+            if (!user.favorites.includes(articleId)) {
+                user.favorites.push(articleId);
+            }
         }
-
-        await article.save();
-
+        
+        // Save both documents (article and user)
+        await Promise.all([
+            article.save(),
+            user.save()
+        ]);
+        
         res.status(200).json({
             success: true,
-            message: 'Article like status updated',
-            likes: article.likes.length
+            message: isLiked ? 'Article liked and added to favorites' : 'Article unliked and removed from favorites',
+            likes: article.likes.length,
+            isLiked
         });
     } catch (error) {
+        console.error('Error in likeArticle:', error);
         res.status(500).json({
             success: false,
             message: 'Failed to update like status',
@@ -367,15 +472,60 @@ const deleteArticle = async (req, res) => {
     }
 };
 
+// Update article status (admin only)
+const updateArticleStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+        const { id } = req.params;
+        
+        // Validate status
+        if (!['pending', 'approved', 'denied'].includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid status value'
+            });
+        }
+
+        const article = await Article.findById(id);
+        
+        if (!article) {
+            return res.status(404).json({
+                success: false,
+                message: 'Article not found'
+            });
+        }
+        
+        // Update status
+        article.status = status;
+        await article.save();
+        
+        res.status(200).json({
+            success: true,
+            message: `Article status updated to ${status}`,
+            data: article
+        });
+    } catch (error) {
+        console.error('Error updating article status:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update article status',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createArticle,
     getArticles,
     getFavArticles,
+    getAllArticles,
     getArticleById,
+    getArticlesByIds,
     getArticlesByUser,
     getArticlesByCategory,
     updateArticle,
+    updateArticleStatus,
+    addComment,
     deleteArticle,
-    likeArticle,
-    addComment
+    likeArticle
 };
