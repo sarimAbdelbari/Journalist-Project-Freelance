@@ -15,8 +15,6 @@ const { uploadAvatar } = require('../middleware/uploadMiddleware');
 router.get('/', getAllUsers);
 router.get('/journalists', getJournalists);
 
-// Important: Put specific routes BEFORE parameterized routes
-// User profile update with avatar upload - THIS MUST COME BEFORE /:id routes
 router.put('/profile', protect, uploadAvatar, updateProfile);
 
 // Parameterized routes should come after specific routes

@@ -53,7 +53,7 @@ function Login() {
       // Redirect based on role or to a default dashboard
       const userRole = response.data.user?.role;
       if (userRole === 'admin') {
-        navigate('/dashboard'); // Or journalist specific dashboard
+        navigate('/dashboard/users'); // Or journalist specific dashboard
       } else {
         navigate('/articles'); // Default for 'abonné' or other roles
       }
@@ -116,7 +116,7 @@ function Login() {
             </button>
           </form>
           <div className="split-register-footer">
-            Don't have an account? <Link to="/register">Register</Link>
+            Don&apos;t have an account? <Link to="/register">Register</Link>
           </div>
         </div>
       </div>

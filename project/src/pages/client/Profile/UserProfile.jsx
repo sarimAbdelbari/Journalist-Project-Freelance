@@ -72,6 +72,8 @@ const UserProfile = () => {
         if (response.data && response.data.user) {
           const userData = response.data.user;
           
+            
+
           setFormData({
             username: userData.username || '',
             email: userData.email || '',
@@ -166,33 +168,23 @@ const UserProfile = () => {
     try {
       setUpdating(true);
       
-      console.log("Submitting formData for user:", userInfo ? userInfo.id : 'No userInfo');
-      console.log("Current formData state before creating FormData object:", formData);
-      console.log("Avatar file to be sent:", avatarFile);
 
-      const formDataToSend = new FormData();
-      formDataToSend.append('username', formData.username);
-      formDataToSend.append('email', formData.email);
-      formDataToSend.append('bio', formData.bio || '');
-      const socialLinks = {
+
+   const formToSendData = {
+      userId: userInfo.id,
+      username: formData.username,
+      email: formData.email,
+      bio: formData.bio || '',
+      socialLinks:{
         twitter: formData.twitter || '',
         linkedin: formData.linkedin || ''
-      };
-      formDataToSend.append('socialLinks', JSON.stringify(socialLinks));
-      if (avatarFile) {
-        formDataToSend.append('avatar', avatarFile);
-      }
+      },
+    };
 
-      console.log('Inspecting formDataToSend entries:');
-      for (let pair of formDataToSend.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-      }
 
-      const response = await axios.put('/users/profile', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+
+      // CHANGE THIS LINE FROM axios.post TO axios.put
+      const response = await axios.put('/users/profile', formToSendData); 
       
       if (response.data && response.data.user) {
         // Update context with new user data

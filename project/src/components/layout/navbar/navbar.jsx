@@ -6,7 +6,7 @@ import './navbar.css';
 // Icons
 import { FaHome, FaNewspaper, FaStar, FaUsers, FaPencilAlt, 
    FaBars, FaTimes, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
-import { MdLogout, MdSettings } from 'react-icons/md';
+import { MdLogout } from 'react-icons/md';
 import { CgProfile } from 'react-icons/cg';
 
 // Import logo
@@ -199,9 +199,7 @@ const isLoggedIn = (obj) => obj && Object.keys(obj).length > 0;
                 <Link to="/profile" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
                   <CgProfile /> Profile
                 </Link>
-                <Link to="#" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                  <MdSettings /> Settings
-                </Link>
+                
                 <button onClick={handleLogout} className="dropdown-item logout-btn">
                   <MdLogout /> Logout
                 </button>

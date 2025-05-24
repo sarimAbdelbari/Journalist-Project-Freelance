@@ -16,6 +16,7 @@ const getUserById = async (req, res) => {
                 role: user.role,
                 bio: user.bio,
                 imagepic: user.imagepic,
+                socialLinks: user.socialLinks, // Include socialLinks
                 active: user.active,
                 favorites: user.favorites,
                 createdAt: user.createdAt,
@@ -67,6 +68,7 @@ const getJournalists = async (req, res) => {
                 email: journalist.email,
                 role: journalist.role,
                 bio: journalist.bio, // Include bio
+                socialLinks: journalist.socialLinks, // Include socialLinks
                 imagepic: journalist.imagepic,
                 active: journalist.active,
                 createdAt: journalist.createdAt,
@@ -136,59 +138,32 @@ const deleteUser = async (req, res) => {
 // Modify the updateProfile function to handle socialLinks
 const updateProfile = async (req, res) => {
     try {
- 
-    
-    const userId = req.user.userId; // From auth middleware
-        const { username, email, bio } = req.body;
-        const avatarFile = req.file; // Get uploaded file if any
-        
-        // Parse socialLinks from form data
-        let socialLinks = {};
-        if (req.body.socialLinks) {
-            try {
-                socialLinks = JSON.parse(req.body.socialLinks);
-            } catch (err) {
-                console.error('Error parsing social links:', err);
-            }
-        }
+        // Get authenticated user ID from req.user (set by protect middleware)
+        const userId = req.user.id || req.user._id;
 
+        // Get fields from the request body
+        const { username, email, bio, socialLinks } = req.body;
+        const avatarFile = req.file;
+
+
+
+        // Find the user
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'User not found for authenticated token' });
         }
 
-        // Check if username is already taken by another user
-        if (username && username !== user.username) {
-            const existingUser = await User.findOne({ username });
-            if (existingUser && existingUser._id.toString() !== userId) {
-                return res.status(400).json({ message: 'Username already exists' });
-            }
-            user.username = username;
-        }
+        // Update username and email if provided
+        if (username) user.username = username;
+        if (email) user.email = email;
 
-        // Check if email is already taken by another user
-        if (email && email !== user.email) {
-            const existingEmail = await User.findOne({ email });
-            if (existingEmail && existingEmail._id.toString() !== userId) {
-                return res.status(400).json({ message: 'Email already exists' });
-            }
-            user.email = email;
-        }
+        // Always update bio (even if empty string)
+        if (typeof bio !== 'undefined') user.bio = bio;
 
-        // Update bio
-        if (bio !== undefined) {
-            user.bio = bio;
-        }
         
-        // Update social links
-        if (socialLinks) {
-            user.socialLinks = {
-                twitter: socialLinks.twitter || user.socialLinks?.twitter || '',
-                linkedin: socialLinks.linkedin || user.socialLinks?.linkedin || ''
-            };
-        }
-
-        // Update profile picture if provided
+        if (socialLinks) user.socialLinks = socialLinks ;
+   
+        // Update avatar if a new file was uploaded
         if (avatarFile) {
             user.imagepic = `/uploads/avatars/${avatarFile.filename}`;
         }
@@ -203,7 +178,7 @@ const updateProfile = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 bio: user.bio,
-                socialLinks: user.socialLinks,
+                socialLinks:  user.socialLinks, 
                 imagepic: user.imagepic,
                 active: user.active,
                 favorites: user.favorites,
@@ -212,7 +187,7 @@ const updateProfile = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error updating profile:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
@@ -225,5 +200,7 @@ module.exports = {
     deleteUser,
     updateProfile 
 };
+
+
 
 
