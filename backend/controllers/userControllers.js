@@ -83,7 +83,7 @@ const getJournalists = async (req, res) => {
     
 const updateUser = async (req, res) => {
     const { id } = req.params;
-    const { username, email, password, bio, active } = req.body;
+    const { username, email, password, bio, active , role } = req.body;
 
     try {
         const user = await User.findById(id);
@@ -97,6 +97,7 @@ const updateUser = async (req, res) => {
         if (password) user.password = await bcrypt.hash(password, 10);
         if (bio !== undefined) user.bio = bio; // Allow empty string
         if (active !== undefined) user.active = active;
+        if (role) user.role = role;
 
         await user.save();
         
@@ -138,33 +139,36 @@ const deleteUser = async (req, res) => {
 // Modify the updateProfile function to handle socialLinks
 const updateProfile = async (req, res) => {
     try {
-        // Get authenticated user ID from req.user (set by protect middleware)
         const userId = req.user.id || req.user._id;
 
-        // Get fields from the request body
-        const { username, email, bio, socialLinks } = req.body;
-        const avatarFile = req.file;
+        // socialLinks will be a JSON string from FormData
+        const { username, email, bio, socialLinks: socialLinksString } = req.body;
+        const avatarFile = req.file; // Populated by uploadAvatar middleware
 
-
-
-        // Find the user
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found for authenticated token' });
         }
 
-        // Update username and email if provided
         if (username) user.username = username;
         if (email) user.email = email;
-
-        // Always update bio (even if empty string)
         if (typeof bio !== 'undefined') user.bio = bio;
 
-        
-        if (socialLinks) user.socialLinks = socialLinks ;
+        // Parse socialLinks if it's a string
+        if (socialLinksString && typeof socialLinksString === 'string') {
+            try {
+                const parsedSocialLinks = JSON.parse(socialLinksString);
+                user.socialLinks = parsedSocialLinks;
+            } catch (parseError) {
+                console.error('Error parsing socialLinks JSON:', parseError);
+                // Optionally, handle the error, e.g., by returning a 400 response
+                // return res.status(400).json({ message: 'Invalid socialLinks format.' });
+            }
+        }
    
-        // Update avatar if a new file was uploaded
         if (avatarFile) {
+            // The path should be relative to how your static files are served.
+            // Example: if 'uploads' is served as a static folder at the root.
             user.imagepic = `/uploads/avatars/${avatarFile.filename}`;
         }
 
@@ -179,7 +183,7 @@ const updateProfile = async (req, res) => {
                 role: user.role,
                 bio: user.bio,
                 socialLinks:  user.socialLinks, 
-                imagepic: user.imagepic,
+                imagepic: user.imagepic, // Send back the new/existing image path
                 active: user.active,
                 favorites: user.favorites,
                 createdAt: user.createdAt,

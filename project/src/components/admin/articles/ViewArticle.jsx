@@ -23,7 +23,6 @@ import {
   FaTag,
   FaBookmark
 } from 'react-icons/fa';
-import parse from 'html-react-parser';
 
 const ViewArticle = ({ open, onClose, article, onStatusChange, getImageUrl }) => {
   if (!article) return null;
@@ -320,7 +319,7 @@ const ViewArticle = ({ open, onClose, article, onStatusChange, getImageUrl }) =>
           <Box className="article-content rich-text-content">
             {article.content ? (
               typeof article.content === 'string' ? 
-                parse(article.content) :
+               article.content :
                 <Typography>{JSON.stringify(article.content)}</Typography>
             ) : (
               <Typography variant="body1" className="no-content">

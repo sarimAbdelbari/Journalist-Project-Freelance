@@ -6,7 +6,7 @@ const multer = require('multer'); // Import multer for error handling
 
 const registerUser = async (req, res) => {
     // req.file is available here thanks to the uploadAvatar middleware in the route
-    const { username, email, password, role, bio, socialLinks, expertiseAreas } = req.body;
+    const { username, email, password, role, bio, socialLinks, expertiseAreas , active } = req.body;
     const avatarFile = req.file; // Get the uploaded file info
 
     try {
@@ -62,7 +62,10 @@ const registerUser = async (req, res) => {
             bio: bio || null, // Add bio field with default value if not provided
             socialLinks: socialLinksObject || {},
             expertiseAreas: expertiseAreasArray || [],
-            imagepic: imagePath // Save the path to the database
+            active: active, // Default to active
+            imagepic: imagePath, // Save the path to the database
+            createdAt: new Date(),
+            updatedAt: new Date()
         });
 
         res.status(201).json({
@@ -121,6 +124,7 @@ const loginUser = async (req, res) => {
                 username: user.username,
                 email: user.email,
                 role: user.role,
+                active: user.active,
                 bio: user.bio, // Include bio in response
                 imagepic: user.imagepic
             }

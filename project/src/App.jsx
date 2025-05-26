@@ -42,6 +42,7 @@ const JournalistOrSubscriberLayout = () => {
 
   if (isLoading) return <div><LoadingPage/></div>;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if(userInfo.active === false) return <Navigate to="/login" replace />;
   if (userInfo.role !== "journaliste" && userInfo.role !== "abonné") 
     return <Navigate to="/" replace />;
 
@@ -61,6 +62,7 @@ const JournalistLayout = () => {
 
   if (isLoading) return <div><LoadingPage/></div>;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+    if(userInfo.active === false) return <Navigate to="/login" replace />;
   if (userInfo.role !== "journaliste") return <Navigate to="/" replace />;
 
   return (
@@ -78,6 +80,7 @@ const AdminLayout = () => {
 
   if (isLoading) return <div><LoadingPage/></div>;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+    if(userInfo.active === false) return <Navigate to="/login" replace />;
   if (userInfo.role !== "admin") return <Navigate to="/" replace />;
 
   return (

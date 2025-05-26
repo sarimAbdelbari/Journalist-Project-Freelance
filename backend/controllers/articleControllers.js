@@ -449,21 +449,27 @@ const deleteArticle = async (req, res) => {
             });
         }
 
-        // Check if user is the author
-        if (article.author.toString() !== req.user.id) {
+        // Check if user is the author OR if the user is an admin
+        // Ensure req.user.role is populated by your authMiddleware (e.g., 'admin')
+        if (article.author.toString() !== req.user.id && (!req.user.role || req.user.role !== 'admin')) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to delete this article'
             });
         }
 
-        await article.remove();
+        // Consider using deleteOne or findByIdAndDelete for modern Mongoose
+        // await article.remove(); // .remove() on a document is deprecated
+        await Article.deleteOne({ _id: req.params.id }); 
+        // OR: await Article.findByIdAndDelete(req.params.id);
+
 
         res.status(200).json({
             success: true,
             message: 'Article deleted successfully'
         });
     } catch (error) {
+        console.error('Error deleting article:', error); // Added for better server-side logging
         res.status(500).json({
             success: false,
             message: 'Failed to delete article',

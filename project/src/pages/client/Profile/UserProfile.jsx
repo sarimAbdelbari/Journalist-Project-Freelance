@@ -156,46 +156,54 @@ const UserProfile = () => {
   };
 
   // Save profile changes
-  const handleSubmit = async (e) => {
+   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (updating) return;
     
-    // Clear previous messages
     setSuccessMessage('');
     setErrorMessage('');
     
     try {
       setUpdating(true);
       
-
-
-   const formToSendData = {
-      userId: userInfo.id,
-      username: formData.username,
-      email: formData.email,
-      bio: formData.bio || '',
-      socialLinks:{
+      const data = new FormData(); // Use FormData for file uploads
+      data.append('username', formData.username);
+      data.append('email', formData.email);
+      data.append('bio', formData.bio || ''); // Ensure bio is a string
+      
+      // Social links need to be stringified to be sent with FormData
+      // and parsed on the backend.
+      const socialData = {
         twitter: formData.twitter || '',
         linkedin: formData.linkedin || ''
-      },
-    };
+      };
+      data.append('socialLinks', JSON.stringify(socialData));
 
+      if (avatarFile) {
+        data.append('avatar', avatarFile); // 'avatar' must match your backend middleware (uploadAvatar)
+      }
 
-
-      // CHANGE THIS LINE FROM axios.post TO axios.put
-      const response = await axios.put('/users/profile', formToSendData); 
+      // The backend route is PUT /users/profile
+      // The controller userControllers.js -> updateProfile uses req.user.id
+      const response = await axios.put('/users/profile', data, {
+        headers: {
+          // 'Content-Type': 'multipart/form-data' // Axios usually sets this automatically for FormData
+        },
+      }); 
       
       if (response.data && response.data.user) {
-        // Update context with new user data
+        const updatedUser = response.data.user;
         setUserInfo(prev => ({
           ...prev,
-          username: response.data.user.username,
-          email: response.data.user.email,
-          imagepic: response.data.user.imagepic
+          username: updatedUser.username,
+          email: updatedUser.email,
+          imagepic: updatedUser.imagepic, // This will be the new path from the server
+          bio: updatedUser.bio,
+          // Assuming socialLinks are part of your userInfo structure
+          // socialLinks: updatedUser.socialLinks 
         }));
         
-        // Update original data
         setOriginalData({
           username: formData.username,
           email: formData.email,
@@ -204,8 +212,19 @@ const UserProfile = () => {
           linkedin: formData.linkedin || ''
         });
         
-        // Reset avatar file after successful upload
-        setAvatarFile(null);
+        setAvatarFile(null); // Reset avatar file state
+        
+        // Update avatar preview with the new URL from the server
+        if (updatedUser.imagepic) {
+          const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || '';
+          const newAvatarUrl = updatedUser.imagepic.startsWith('http') 
+            ? updatedUser.imagepic 
+            : `${baseUrl}${updatedUser.imagepic.startsWith('/') ? '' : '/'}${updatedUser.imagepic}`;
+          setAvatarPreview(newAvatarUrl);
+        } else {
+          // If imagepic is removed or null, clear preview or set to default
+          setAvatarPreview(null); 
+        }
         
         setSuccessMessage('Profile updated successfully');
         sucess_toast('Profile updated successfully');
