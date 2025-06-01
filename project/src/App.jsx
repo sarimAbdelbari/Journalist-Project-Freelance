@@ -1,27 +1,28 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import Login from './pages/client/auth/Login'
-import Register from './pages/client/auth/Register'
-import Home from './pages/client/Home/Home'
-import Article from './pages/client/Article/Article'
-import 'react-toastify/dist/ReactToastify.css';
-import { useStateContext } from './contexts/ContextProvider'
-import './App.css'
-import { ToastContainer } from 'react-toastify'
-import Navbar from '@/components/layout/navbar/navbar'
-import { Outlet } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth'
-import ArticleCreate from '@/pages/client/ArticleCreate/ArticleCreate'
-import Dashboard from '@/pages/admin/dashboard/Dashboard'
-import Sidebar from '@/components/layout/sidebar/sidebar'
-import Users from '@/pages/admin/users/users'
-import JournalistsList from '@/pages/client/Journalists/JournalistsList'
-import UserProfile from '@/pages/client/Profile/UserProfile'
-import Favorites from '@/pages/client/Favorites/Favorites'
-import MyArticles from '@/pages/client/MyArticles/MyArticles'
-import { LoadingPage } from './components/layout/loading/LoadingPage'
-import ArticlesTable from './pages/admin/articles/articles'
-import Comments from './pages/admin/comments/comment'
-
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/client/auth/Login";
+import Register from "./pages/client/auth/Register";
+import Home from "./pages/client/Home/Home";
+import Article from "./pages/client/Article/Article";
+import "react-toastify/dist/ReactToastify.css";
+import { useStateContext } from "./contexts/ContextProvider";
+import "./App.css";
+import { ToastContainer } from "react-toastify";
+import Navbar from "@/components/layout/navbar/navbar";
+import { Outlet } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import ArticleCreate from "@/pages/client/ArticleCreate/ArticleCreate";
+import Dashboard from "@/pages/admin/dashboard/Dashboard";
+import Sidebar from "@/components/layout/sidebar/sidebar";
+import Users from "@/pages/admin/users/users";
+import JournalistsList from "@/pages/client/Journalists/JournalistsList";
+import UserProfile from "@/pages/client/Profile/UserProfile";
+import Favorites from "@/pages/client/Favorites/Favorites";
+import MyArticles from "@/pages/client/MyArticles/MyArticles";
+import { LoadingPage } from "./components/layout/loading/LoadingPage";
+import ArticlesTable from "./pages/admin/articles/articles";
+import Comments from "./pages/admin/comments/comment";
+import UnauthorizedAccess from "./pages/NotFound/UnauthorizedAccess";
+import EditArticle from "./components/EditArticle/EditArticle";
 // Public layout for both signed-in and unsigned visitors
 const MainLayout = () => {
   return (
@@ -32,18 +33,21 @@ const MainLayout = () => {
   );
 };
 
-
-
-
 // Add this new layout function
 const JournalistOrSubscriberLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const { userInfo } = useStateContext();
+  console.log("userInfo", userInfo);
 
-  if (isLoading) return <div><LoadingPage/></div>;
+  if (isLoading)
+    return (
+      <div>
+        <LoadingPage />
+      </div>
+    );
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if(userInfo.active === false) return <Navigate to="/login" replace />;
-  if (userInfo.role !== "journaliste" && userInfo.role !== "abonné") 
+  if (!userInfo.active) return <Navigate to="/Unauthorized" replace />;
+  if (userInfo.role !== "journaliste" && userInfo.role !== "abonné")
     return <Navigate to="/" replace />;
 
   return (
@@ -54,15 +58,19 @@ const JournalistOrSubscriberLayout = () => {
   );
 };
 
-
 // Layout for journalist-specific features
 const JournalistLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const { userInfo } = useStateContext();
 
-  if (isLoading) return <div><LoadingPage/></div>;
+  if (isLoading)
+    return (
+      <div>
+        <LoadingPage />
+      </div>
+    );
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-    if(userInfo.active === false) return <Navigate to="/login" replace />;
+  if (!userInfo.active) return <Navigate to="/Unauthorized" replace />;
   if (userInfo.role !== "journaliste") return <Navigate to="/" replace />;
 
   return (
@@ -78,9 +86,14 @@ const AdminLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const { userInfo } = useStateContext();
 
-  if (isLoading) return <div><LoadingPage/></div>;
+  if (isLoading)
+    return (
+      <div>
+        <LoadingPage />
+      </div>
+    );
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-    if(userInfo.active === false) return <Navigate to="/login" replace />;
+  // if(userInfo.active === false) return <Navigate to="/login" replace />;
   if (userInfo.role !== "admin") return <Navigate to="/" replace />;
 
   return (
@@ -94,7 +107,12 @@ const AdminLayout = () => {
 const AuthenticatedLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) return <div><LoadingPage/></div>;
+  if (isLoading)
+    return (
+      <div>
+        <LoadingPage />
+      </div>
+    );
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   return (
@@ -122,34 +140,37 @@ function App() {
       />
       <Routes>
         {/* Public routes - accessible to everyone */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-      
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/Unauthorized" element={<UnauthorizedAccess />}></Route>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/article/:id" element={<Article />} />
-          <Route path="/journalists" element={<JournalistsList />} /> {/* Add this component */}
+          <Route path="/journalists" element={<JournalistsList />} />{" "}
+          {/* Add this component */}
         </Route>
 
         {/* Routes for any authenticated user */}
         <Route element={<AuthenticatedLayout />}>
-          <Route path="/profile" element={<UserProfile />} /> {/* Add this component */}
+          <Route path="/profile" element={<UserProfile />} />{" "}
+          {/* Add this component */}
         </Route>
-
-       
 
         {/* Journalist-specific routes */}
         <Route element={<JournalistLayout />}>
           <Route path="/article/create-article" element={<ArticleCreate />} />
-          <Route path="/my-articles" element={<MyArticles />} /> {/* Add this component */}
-          <Route path="/profile" element={<UserProfile />} /> {/* Add this component */}
+          <Route path="/my-articles" element={<MyArticles />} />{" "}
+          {/* Add this component */}
+          <Route path="/profile" element={<UserProfile />} />{" "}
+          {/* Add this component */}
           {/* <Route path="/journalist" element={<JournalistProfile />} /> */}
+          <Route path="/article/edit/:id" element={<EditArticle />} />
         </Route>
-<Route element={<JournalistOrSubscriberLayout />}>
-          <Route path="/profile" element={<UserProfile />} /> {/* Add this component */}
-
-  <Route path="/favorites" element={<Favorites />} />
-</Route>
+        <Route element={<JournalistOrSubscriberLayout />}>
+          <Route path="/profile" element={<UserProfile />} />{" "}
+          {/* Add this component */}
+          <Route path="/favorites" element={<Favorites />} />
+        </Route>
 
         {/* Admin routes */}
         <Route element={<AdminLayout />}>

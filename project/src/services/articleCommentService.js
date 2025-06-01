@@ -32,3 +32,13 @@ export const deleteComment = async (commentId) => {
     throw error;
   }
 };
+
+export const modifyComment = async (commentId, commentData) => {
+  try {
+    const response = await axios.put(`/comments/${commentId}`, commentData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error modifying comment ${commentId}:`, error);
+    throw error;
+  }
+}

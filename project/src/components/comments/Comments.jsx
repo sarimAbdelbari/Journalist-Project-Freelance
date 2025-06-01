@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { addComment as addArticleComment } from '../../services/articleService';
-import {  likeComment, deleteComment } from '../../services/articleCommentService';
+import {  likeComment, deleteComment, modifyComment } from '../../services/articleCommentService'; // Added modifyComment
 import { useStateContext } from '../../contexts/ContextProvider';
-import { FaHeart, FaRegHeart, FaTrash } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaTrash, FaEdit, FaSave, FaTimes } from 'react-icons/fa'; // Added FaEdit, FaSave, FaTimes
 import { info_toast, error_toast, sucess_toast } from '@/utils/toastNotification';
 import PropTypes from 'prop-types';
 import './Comments.css';
@@ -13,6 +13,11 @@ const Comments = ({ articleId, comments: initialComments = [] }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { userInfo } = useStateContext();
+
+  // State for editing comments
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editedContent, setEditedContent] = useState('');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   useEffect(() => {
     // Update comments when initialComments prop changes
@@ -109,6 +114,48 @@ const Comments = ({ articleId, comments: initialComments = [] }) => {
     }
   };
 
+  const handleEditComment = (comment) => {
+    setEditingCommentId(comment._id);
+    setEditedContent(comment.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditedContent('');
+  };
+
+  const handleSaveEdit = async (commentId) => {
+    if (!editedContent.trim()) {
+      error_toast("Comment content cannot be empty.");
+      return;
+    }
+    if (!userInfo || !userInfo.id) {
+      info_toast("Please login to modify comments");
+      return;
+    }
+
+    setIsSavingEdit(true);
+    try {
+      const response = await modifyComment(commentId, { content: editedContent });
+      if (response && response.success) {
+        setComments(prevComments =>
+          prevComments.map(comment =>
+            comment._id === commentId ? { ...comment, content: editedContent, updatedAt: new Date().toISOString() } : comment // Optimistically update updatedAt
+          )
+        );
+        sucess_toast("Comment updated successfully!");
+        handleCancelEdit(); // Close edit mode
+      } else {
+        error_toast(response.message || "Failed to update comment");
+      }
+    } catch (error) {
+      error_toast("Failed to update comment");
+      console.error('Error updating comment:', error);
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
@@ -140,8 +187,8 @@ const Comments = ({ articleId, comments: initialComments = [] }) => {
             placeholder="Add your comment..."
             disabled={isSubmitting}
           />
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="comment-submit-btn"
             disabled={isSubmitting || !newComment.trim()}
           >
@@ -166,19 +213,49 @@ const Comments = ({ articleId, comments: initialComments = [] }) => {
               <div className="comment-content">
                 <div className="comment-header">
                   <h5 className="comment-author">{comment.user?.username || 'Anonymous User'}</h5>
-                  <span className="comment-date">{formatDate(comment.createdAt)}</span>
+                  <span className="comment-date">{formatDate(comment.createdAt)}
+                    {comment.updatedAt && new Date(comment.updatedAt) > new Date(comment.createdAt) && (
+                        <em> (edited {formatDate(comment.updatedAt)})</em>
+                    )}
+                  </span>
                 </div>
-                <p className="comment-text">{comment.content}</p>
+                {editingCommentId === comment._id ? (
+                  <div className="comment-edit-form">
+                    <textarea
+                      className="comment-edit-input"
+                      value={editedContent}
+                      onChange={(e) => setEditedContent(e.target.value)}
+                      disabled={isSavingEdit}
+                    />
+                    <div className="comment-edit-actions">
+                      <button onClick={() => handleSaveEdit(comment._id)} className="comment-save-btn" disabled={isSavingEdit}>
+                        <FaSave /> {isSavingEdit ? 'Saving...' : 'Save'}
+                      </button>
+                      <button onClick={handleCancelEdit} className="comment-cancel-btn" disabled={isSavingEdit}>
+                        <FaTimes /> Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="comment-text">{comment.content}</p>
+                )}
                 <div className="comment-actions">
                   <button onClick={() => handleLikeComment(comment._id)} className="comment-like-btn">
-                    {comment.likes && userInfo && comment.likes.some(like => like === userInfo.id || like._id === userInfo.id) ? 
+                    {comment.likes && userInfo && comment.likes.some(like => like === userInfo.id || like._id === userInfo.id) ?
                       <FaHeart /> : <FaRegHeart />}
                     {comment.likes ? comment.likes.length : 0}
                   </button>
                   {userInfo && (userInfo.id === comment.user?._id || userInfo.role === 'admin') && (
-                    <button onClick={() => handleDeleteComment(comment._id)} className="comment-delete-btn">
-                      <FaTrash />
-                    </button>
+                    <>
+                      {editingCommentId !== comment._id && (
+                        <button onClick={() => handleEditComment(comment)} className="comment-edit-btn">
+                          <FaEdit />
+                        </button>
+                      )}
+                      <button onClick={() => handleDeleteComment(comment._id)} className="comment-delete-btn">
+                        <FaTrash />
+                      </button>
+                    </>
                   )}
                 </div>
               </div>

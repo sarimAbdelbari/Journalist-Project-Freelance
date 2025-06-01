@@ -5,7 +5,8 @@ const {
   getCommentsByArticleId,
   likeComment,
   deleteComment,
-  getAllComments // Add this import
+  getAllComments ,
+  modifyComment
 } = require('../controllers/commentControllers');
 
 // Comments-specific routes
@@ -14,6 +15,7 @@ router.get('/', protect, authorize('admin'), getAllComments);
 router.get('/articles/:articleId/comments', getCommentsByArticleId);
 
 
+router.put('/:id', protect, modifyComment); // Modify comment
 router.post('/:id/like', protect, likeComment);
 router.delete('/:id', protect, deleteComment);
 

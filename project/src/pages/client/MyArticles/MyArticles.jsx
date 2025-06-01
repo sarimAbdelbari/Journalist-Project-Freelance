@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom';
 import { FaEdit, FaTrash, FaRegClock, FaRegCalendarAlt, FaRegHeart, FaRegComment } from 'react-icons/fa';
 import { BiCategory } from 'react-icons/bi';
 import { MdPending, MdDoneAll, MdCancel } from 'react-icons/md';
-import { useStateContext } from '@/contexts/ContextProvider';
-import { error_toast, sucess_toast, info_toast } from '@/utils/toastNotification';
+import { error_toast, sucess_toast  } from '@/utils/toastNotification';
 import './MyArticles.css';
 
 function MyArticles() {
@@ -14,7 +13,7 @@ function MyArticles() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const { userInfo } = useStateContext();
+
 
   useEffect(() => {
     const loadArticles = async () => {
@@ -293,7 +292,9 @@ function MyArticles() {
                     <Link to={`/article/${article._id}`} className="view-btn">
                       View Article
                     </Link>
-                   
+                   <Link to={`/article/edit/${article._id}`} className="edit-btn">
+                      <FaEdit /> Edit
+                    </Link>
                     <button 
                       onClick={() => handleDeleteArticle(article._id, article.title)} 
                       className="delete-btn"
@@ -308,7 +309,7 @@ function MyArticles() {
         ) : (
           <div className="no-results">
             <h3>No articles found</h3>
-            <p>No articles match your current filters or you haven't published any articles yet.</p>
+            <p>No articles match your current filters or you haven&apos;t published any articles yet.</p>
             {(searchTerm || selectedCategory !== 'all' || selectedStatus !== 'all') && (
               <button 
                 onClick={() => {

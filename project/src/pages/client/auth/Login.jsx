@@ -54,8 +54,10 @@ function Login() {
       const userRole = response.data.user?.role;
       if (userRole === 'admin') {
         navigate('/dashboard/users'); // Or journalist specific dashboard
+      } else if(!response.data.user?.active) {
+        navigate('/Unauthorized'); // Default for 'abonné' or other roles
       } else {
-        navigate('/articles'); // Default for 'abonné' or other roles
+        navigate('/');
       }
 
     } catch (error) {

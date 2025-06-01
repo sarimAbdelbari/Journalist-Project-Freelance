@@ -78,7 +78,8 @@ const updateArticle = async (req, res) => {
                 category,
                 tags,
                 mediaType,
-                mediaUrl
+                mediaUrl,
+                status:'pending'
             },
             { new: true, runValidators: true }
         );

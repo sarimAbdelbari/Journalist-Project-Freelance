@@ -139,9 +139,57 @@ const deleteComment = async (req, res) => {
   }
 };
 
+
+const modifyComment = async (req, res) => {
+  try {
+    const { content } = req.body;
+
+    // Validate content
+    if (!content || content.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'Content is required'
+      });
+    }
+
+    const comment = await Comment.findById(req.params.id);
+
+    if (!comment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Comment not found'
+      });
+    }
+
+    // Check if user is comment owner or admin
+    if (comment.user.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to modify this comment'
+      });
+    }
+
+    comment.content = content;
+    await comment.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Comment modified successfully',
+      data: comment
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to modify comment',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllComments ,
   getCommentsByArticleId,
   likeComment,
-  deleteComment
+  deleteComment,
+  modifyComment
 };

@@ -1,0 +1,41 @@
+.unauthorized-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh; /* Adjust as needed */
+  text-align: center;
+  padding: 20px;
+  font-family: sans-serif;
+  background-color: #f8f9fa; /* Light background */
+}
+
+.unauthorized-content {
+  background-color: #fff;
+  padding: 30px 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.unauthorized-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  color: #dc3545; /* Red color for warning/denial */
+}
+
+.unauthorized-content p {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.unauthorized-content a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.unauthorized-content a:hover {
+  text-decoration: underline;
+}
