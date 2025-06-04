@@ -114,7 +114,7 @@ function MyArticles() {
         return JSON.parse(tagString[0]);
       }
       return tagString;
-    } catch (e) {
+    } catch  {
       return tagString;
     }
   };

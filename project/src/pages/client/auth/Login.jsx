@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 // Import assets
 import logoDark from "@/assets/logoDark.png";
 import loginBg from "@/assets/background/loginBg.jpg";
+import { warn_toast } from '@/utils/toastNotification';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -17,9 +18,27 @@ function Login() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   const navigate = useNavigate();
   const { setUserInfo } = useStateContext();
+
+  // Email validation function
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const invalidCharsRegex = /[\/\*\+\=\[\]\{\}\|\\\<\>\?]/;
+    
+    if (!email) {
+      return 'Email is required';
+    }
+    if (invalidCharsRegex.test(email)) {
+      return ;
+    }
+    if (!emailRegex.test(email)) {
+      return ;
+    }
+    return '';
+  };
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -27,10 +46,32 @@ function Login() {
       ...prev,
       [id]: value
     }));
+
+    // Validate email on change
+    if (id === 'email') {
+      const error = validateEmail(value);
+      setEmailError(error);
+    }
+  };
+
+  const isFormValid = () => {
+    return formData.email && 
+           formData.password && 
+           !emailError &&
+           !isLoading;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Final validation before submission
+    const emailValidationError = validateEmail(formData.email);
+    if (emailValidationError) {
+      setEmailError(emailValidationError);
+      error_toast(emailValidationError);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -85,7 +126,9 @@ function Login() {
                 onChange={handleChange}
                 autoComplete="email"
                 required
+                className={emailError ? 'error' : ''}
               />
+              {emailError && <span className="error-message">{emailError}</span>}
             </div>
             <div className="split-form-group">
               <label htmlFor="password">Password</label>
@@ -112,7 +155,7 @@ function Login() {
             <button
               type="submit"
               className="split-register-btn"
-              disabled={isLoading}
+              disabled={!isFormValid()}
             >
               {isLoading ? "Logging in..." : "Login"}
             </button>

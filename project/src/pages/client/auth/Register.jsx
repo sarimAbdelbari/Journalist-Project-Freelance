@@ -7,6 +7,7 @@ import logoDark from "@/assets/logoDark.png";
 import loginBg from "@/assets/background/loginBg.jpg";
 import "@/pages/client/Auth/Auth.css";
 import { FaCamera } from "react-icons/fa"; 
+import { warn_toast } from '@/utils/toastNotification';
 
 function Register() {
   const [formData, setFormData] = useState({
