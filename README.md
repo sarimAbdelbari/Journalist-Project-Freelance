@@ -28,7 +28,12 @@ Feather is a full-stack web application designed as a modern platform for journa
 
 Feather provides a seamless experience for content creation, management, and consumption. Journalists can craft and submit articles, administrators can moderate content and manage users, and readers can explore articles, interact through likes and comments, and personalize their experience by saving favorites.
 
+## Pictures
+
+
 ## Features
+![Screenshot 2025-06-04 193339](https://github.com/user-attachments/assets/e0f231e3-3cd3-45c4-ac87-942dc87be6e0)
+![Screenshot 2025-06-04 192948](https://github.com/user-attachments/assets/da3359c5-e796-4123-a0e9-3de6a2dc3c5e)
 
 ### General User Features (Subscribers/Readers)
 
